@@ -296,6 +296,14 @@ export default {
       seller_code: this.$store.state.Login.userInfo.seller_code,
       username: "",
     });
+    this.$electron.ipcRenderer.on("before_closed",()=>{
+        this.$store.commit('SET_USER_INFO','')
+        this.$store.commit('RESETVUEX')
+       localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+        localStorage.removeItem('userInfo')
+   
+    });
   },
 };
 </script>

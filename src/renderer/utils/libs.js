@@ -1,4 +1,5 @@
 const appData = require("@/assets/emojis.json");
+
 // 表情转化
 export function conversion(input) {
     if(!input)return
@@ -73,5 +74,3 @@ export function compressImage(file, success, error) {
       error(e);
     };
   }
-
-  

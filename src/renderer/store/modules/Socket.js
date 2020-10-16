@@ -1,6 +1,7 @@
 import {
     getGroupList
 } from "@/api/group.js";
+import router from '@/router'
 import { getCustomerQueue } from "@/api/await.js";
 import { getNowServiceList } from "@/api/current.js";
 const state = {
@@ -29,7 +30,6 @@ const state = {
     userForbid:{}, //禁言个人
     kefuStatus:{},
     oldUser:{},//上次接待的人
-
 }
 const getters = {
     currentNum(state){
@@ -57,6 +57,10 @@ const mutations = {
     },
     // reconnect:重新连接socket事件
     SOCKET_reconnect: (data) => {
+        
+    },
+    SOCKET_delKefu: (state,data) => {
+        router.push({name:'Login'})
     },
     //收到用户消息
     SOCKET_userMsg: (state, data) => {
@@ -172,11 +176,11 @@ const mutations = {
         state. userForbid={} //禁言个人
         state.kefuStatus={}
         state.oldUser={}//上次接待的人
-    },
-    
-    
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+        localStorage.removeItem('userInfo')
+    }, 
 } 
-
 const actions = {
     // 获取群列表
     getGroupList({ commit },data) {
@@ -223,7 +227,10 @@ const actions = {
                 });
         })
     },
-
+    delKefu({commit}){
+        commit(DEL)
+    }
+   
 }
 
 export default {

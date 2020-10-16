@@ -1,12 +1,16 @@
 <template>
 <div class="record_content" @click="audio">
+    <!-- <a-spin>
+        <a-icon slot="indicator" type="loading" style="font-size: 14px" spin />
+    </a-spin> -->
     <p class="time" style="marginleft:10px" v-if="playdata.from_name === $store.state.Login.userInfo.kefu_name  ">{{playdata.file_duration || playdata.message.duration}}"</p>
     <div :class="['cricleplay',playdata.from_name ===  $store.state.Login.userInfo.kefu_name ? 'different':'']" status="stop" no="1">
         <div class="small"></div>
         <div :class="['middle',play?'':'stopanimate']"></div>
         <div :class="['large',play?'':'stopanimate']"></div>
     </div>
-    <p class="time" v-if="playdata.from_name !== $store.state.Login.userInfo.kefu_name  ">{{playdata.file_duration || playdata.message.duration}}"</p>
+    <p class="time" v-if="playdata.from_name !== $store.state.Login.userInfo.kefu_name">{{playdata.file_duration || playdata.message.duration}}"</p>
+     <!-- <a-spin /> -->
 </div>
 </template>
 
@@ -64,7 +68,6 @@ export default {
         margin-left: 8px;
     }
 }
-
 .small {
     width: 14px;
     height: 14px;

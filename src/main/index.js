@@ -1,4 +1,4 @@
-import { app, BrowserWindow,Tray,Menu,globalShortcut,ipcMain,Notification} from 'electron'
+import { app, BrowserWindow,Tray,Menu,globalShortcut,ipcMain,Notification, dialog} from 'electron'
 import path from 'path'
 
 /**
@@ -102,8 +102,32 @@ function implementSystemTray(){
     appTray.popUpContextMenu(trayContextMenu)
   })
 }
+// // 关闭应用前事件
+// app.on('before-quit',(event)=>{
+//   console.log(1)
+//   event.preventDefault()
+//     mainWindow.webContents.send('before_closed');
+// })
+// app.on('close',(event)=>{
+//   console.log(2)
+//   event.preventDefault()
+//   mainWindow.webContents.send('before_closed');
+// })
+// app.on('quit',(event)=>{
+//   console.log(3)
+//   event.preventDefault()
+//   mainWindow.webContents.send('before_closed');
+// })
+// app.on('will-quit',(event)=>{
+//   console.log(4)
+//   event.preventDefault()
+//   mainWindow.webContents.send('before_closed');
+// })
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', (event) => {
+  console.log(5)
+  // event.preventDefault()
+  mainWindow.webContents.send('before_closed');
   if (process.platform !== 'darwin') {
     app.quit()
   }

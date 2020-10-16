@@ -7,7 +7,7 @@
     SET_USER_INFO(state,val){
       if(val){
         state.userInfo = val
-      localStorage.setItem('userInfo',JSON.stringify(val))
+        localStorage.setItem('userInfo',JSON.stringify(val))
       }else {
         localStorage.removeItem('userInfo')
       }
@@ -40,11 +40,11 @@
       });
     },
     // 退出登录
-    outLogin({commit}){
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
-      commit('SET_USER_INFO','')
-    }
+    // outLogin({commit}){
+    //   localStorage.removeItem('accessToken')
+    //   localStorage.removeItem('refreshToken')
+    //   commit('SET_USER_INFO','')
+    // }
   }
   
   export default {

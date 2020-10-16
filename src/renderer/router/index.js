@@ -14,7 +14,7 @@ Router.prototype.push = function push (location, onResolve, onReject) {
 const router =  new Router({
   routes: routers
 })
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from, next) => {  
   let token = localStorage.getItem('accessToken')
     store.commit('SET_CURRENT_PAGE', to.name)
   if (!token && to.name !== 'Login') {
@@ -26,6 +26,11 @@ router.beforeEach((to, from, next) => {
     // 未登陆且要跳转的页面是登录页
     next() // 跳转
   } 
+   if( to.name === 'Login'){
+    store.commit('RESETVUEX')
+    store.commit('SET_USER_INFO','')
+    next() // 跳转
+  }
   
 if(localStorage.getItem('userInfo')){
   let userInfo = JSON.parse(localStorage.getItem('userInfo'))

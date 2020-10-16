@@ -80,7 +80,6 @@ export default {
         okText: "确认",
         cancelText: "取消",
         onOk() {
-          that.$store.dispatch("outLogin");
           that.$router.push({
             name: "Login",
           });
