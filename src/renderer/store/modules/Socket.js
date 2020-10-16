@@ -117,6 +117,15 @@ const mutations = {
     //  上次接待 再次默认接待
     SOCKET_autoLink:(state, data) => { 
         data.access_time = data.createtime
+        if(!state.currentChatList.length){
+            data.noReadNum = 0
+            state.currentUser= {
+                activtyUid: data.uid,
+                activtyeUsername: data.username,
+                login_ip:data.login_ip, 
+                area:data.area
+            }
+        }
         state.oldUser = data
         state.currentChatList.push(data)
     },
@@ -138,11 +147,31 @@ const mutations = {
     SET_CURRENT_CHAT_LIST(state, data){
         state.currentChatList = data
     },
-    // SET_GROUP_CHAT_NUM(state, data){
-    //     state.groupChatNum = data
-    // },
     SET_USER_IP(state, data){
         state.userIp = data
+    },
+    RESETVUEX(state){
+        state.currentUser.activtyUid= null
+        state.currentUser.activtyeUsername=""
+        state.currentUser.login_ip=''
+        state.currentUser.area=''
+        state.activityGroup.activityId= null
+        state.activityGroup. activityTitle= ""
+        state.activityGroup.is_invite=1
+        state.userMessage= {} // 客服收到用户消息
+        state.relinkMessage= {} // 客服收到转接消息
+        state. refuseMessage= {} // 转接是否被接受
+        state.groupMessage= {} // 接受群聊消息
+        state.chatList= []//群列表
+        state.awaitList=[] // 等待接入
+        state.currentChatList=[]// 正在聊天列表
+        state.userIp={}
+        state.groupBlack={}//全局拉黑提示
+        state.userBlack={}//个人拉黑提示
+        state.groupForbid={} //禁言全局
+        state. userForbid={} //禁言个人
+        state.kefuStatus={}
+        state.oldUser={}//上次接待的人
     },
     
     

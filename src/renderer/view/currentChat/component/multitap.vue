@@ -146,4 +146,8 @@ export default {
 .multitap {
     text-align: center;
 }
+/deep/ .ant-badge-dot{
+  width: 10px;
+  height: 10px;
+}
 </style>

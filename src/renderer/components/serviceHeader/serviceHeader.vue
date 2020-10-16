@@ -49,6 +49,7 @@
 </template>
 
 <script>
+import { mapMutations} from "vuex";
 export default {
   name: "ServiceHeader",
   components: {},
@@ -70,6 +71,7 @@ export default {
      }
   },
   methods: {
+    ...mapMutations(['RESETVUEX']),
     confirm() {
       let that = this
       this.$confirm({
@@ -82,6 +84,7 @@ export default {
           that.$router.push({
             name: "Login",
           });
+          that.RESETVUEX()
         },
         onCancel() {},
       });

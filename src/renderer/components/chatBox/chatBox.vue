@@ -25,11 +25,12 @@
                 item.from_name
               }}</span>
               <div class="chat_content chat_content_left">
-                <p v-if="item.type === 0">{{ item.content || item.message }}</p>
+                <p  style="white-space: pre-line;" v-if="item.type === 0">{{ item.content || item.message }}</p>
                 <div v-else-if="item.type === 1" class="pictrue">
                   <img
                     @click="viewImg(item.content || item.message)"
-                    v-lazy="item.content || item.message"
+                    @load='loadImg' 
+                    :src="item.content || item.message"
                     alt
                   />
                 </div>
@@ -84,11 +85,12 @@
                 $store.state.Login.userInfo.kefu_name
               }}</span>
               <div class="chat_content chat_content_right">
-                <p v-if="item.type === 0">{{ item.content || item.message }}</p>
+                <p style="white-space: pre-line;" v-if="item.type === 0">{{ item.content || item.message }}</p>
                 <div v-else-if="item.type === 1" class="pictrue">
                   <img
+                   @load='loadImg' 
                     @click="viewImg(item.content || item.message)"
-                    v-lazy="item.content || item.message"
+                    :src="item.content || item.message"
                     alt
                   />
                 </div>
@@ -345,7 +347,12 @@ export default {
   },
   methods: {
     enter(event) {
-      if (event.keyCode === 13) {
+      if (event.keyCode === 13 && event.ctrlKey ||event.altKey) {
+        this.sendText +='\n'
+      }else if(event.keyCode === 13 &&event.shiftKey){
+        // shitt+回车自带换行
+      }
+      else if(event.keyCode === 13 ) {
         event.preventDefault();
         this.sendMessage(this.sendText, 0);
       }
@@ -401,10 +408,12 @@ export default {
       let that = this;
       this.chatLogList.length &&
       this.$nextTick(() => {
-        setTimeout(() => {
           that.$refs.chatMain.scrollTop = that.$refs.chatMain.scrollHeight;
-        }, 200);
       });
+    },
+    // 图片显示延迟显示
+    loadImg(){
+       this.messageDown()
     },
     // 播放语音
     playRecord(stream, index,bool) {

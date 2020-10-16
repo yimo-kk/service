@@ -93,7 +93,7 @@ export default {
     },
   },
   watch: {},
-  sockets: {},
+  sockets: {}, 
   methods: {
     ...mapActions(["getAwaitList",'getCurrentListData']),
     ...mapMutations(['SET_AWAIT_LIST']),

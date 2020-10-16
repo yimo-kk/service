@@ -600,7 +600,7 @@ export default {
         this.handleGroupUser = [];
         this.getGroupMemberList({
           group_id: this.activityGroup.activityId,
-           seller_code:this.$store.state.Login.userInfo.seller_code
+          seller_code:this.$store.state.Login.userInfo.seller_code
         });
       });
     },
@@ -682,30 +682,42 @@ export default {
   },
   created() {},
   mounted() {
-    // this.SET_CHAT_LIST([]);
-    // this.list_loading =true
+    this.logLoading = true;
     this.getGroupList({
       kefu_id:this.$store.state.Login.userInfo.kefu_id
     }).then((result) => {
-      // this.list_loading =false
       if (this.$store.state.Socket.chatList.length) {
-      this.SET_ACTIVITY_GROUP({
-        activityId: this.$store.state.Socket.chatList[0].group_id,
-        activityTitle: this.$store.state.Socket.chatList[0].group_name,
-        is_invite:this.$store.state.Socket.chatList[0].is_invite
-      });
-      let arr = JSON.parse(JSON.stringify(this.$store.state.Socket.chatList));
-      arr[0].badgeShow = 0;
-      this.SET_CHAT_LIST(arr);
-      this.chatLogList = [];
-      this.getGroupChatLog({
-        group_id: this.$store.state.Socket.chatList[0].group_id,
-        kefu_id:this.$store.state.Login.userInfo.kefu_id,
-        kefu_code:this.$store.state.Login.userInfo.kefu_code
-      });
+        if(!this.activityGroup.activityId){
+            this.SET_ACTIVITY_GROUP({
+            activityId: this.$store.state.Socket.chatList[0].group_id,
+            activityTitle: this.$store.state.Socket.chatList[0].group_name,
+            is_invite:this.$store.state.Socket.chatList[0].is_invite
+          });
+          let arr = JSON.parse(JSON.stringify(this.$store.state.Socket.chatList));
+          arr[0].noReadNum = 0;
+          this.SET_CHAT_LIST(arr);
+          this.chatLogList = [];
+          this.getGroupChatLog({
+            group_id: this.$store.state.Socket.chatList[0].group_id,
+            kefu_id:this.$store.state.Login.userInfo.kefu_id,
+            kefu_code:this.$store.state.Login.userInfo.kefu_code
+          });
+        }else {
+          let arr = JSON.parse(JSON.stringify(this.$store.state.Socket.chatList));
+         let list = arr.map(item =>{
+            item.group_id === this.activityGroup.activityId && (item.noReadNum = 0)
+            return item
+          })
+          this.SET_CHAT_LIST(list);
+          this.chatLogList = [];
+          this.getGroupChatLog({
+            group_id: this.activityGroup.activityId,
+            kefu_id:this.$store.state.Login.userInfo.kefu_id,
+            kefu_code:this.$store.state.Login.userInfo.kefu_code
+          });
+        }
     }
     }).catch((err) => {
-      // this.list_loading =false
     });
    
   },

@@ -91,7 +91,7 @@ export default {
     },
     groupMessage() {
       return this.$store.state.Socket.groupMessage;
-    },
+    }, 
     awaitList() {
       return this.$store.state.Socket.awaitList;
     },
@@ -101,12 +101,26 @@ export default {
     groupChatNum(){
       return this.$store.state.Socket.groupChatNum;
     },
-     oldUser(){
+    oldUser(){
       return this.$store.state.Socket.oldUser;
+    },
+    chatList(){
+      return this.$store.state.Socket.chatList;
     }
+
     
   },
   watch: {
+    chatList:{
+      handler(newVal){
+        newVal.length===0 &&  this.SET_ACTIVITY_GROUP({
+            activityId: null,
+            activityTitle: "",
+            is_invite:1
+          });
+      },
+      deep:true
+    },
     oldUser:{
       handler(newVal) {
          this.play();
@@ -179,7 +193,8 @@ export default {
             "isVisible_box",
             `${data.from_name}给你发了新消息了`
           );
-          if(newVal.from_name != this.$store.state.Socket.currentUser.activtyeUsername){
+          // if(newVal.from_name != this.$store.state.Socket.currentUser.activtyeUsername){
+          if(this.selectedKey !='CurrentChat' || this.$store.state.Socket.currentUser.activtyeUsername != newVal.from_name){
               let arr = JSON.parse(JSON.stringify(this.currentChatList))
               let list = arr.map((item) => {
                 item.username == data.from_name && (item.noReadNum += 1)
@@ -205,7 +220,7 @@ export default {
             `收到一条新的群消息！`
           );
         }
-        if (this.$store.state.Socket.chatList.length && data.group_id != this.$store.state.Socket.activityGroup.activityId) {
+        if (this.$store.state.Socket.chatList.length && (this.selectedKey !='GroupChat' || this.$store.state.Socket.activityGroup.activityId != newVal.group_id)) {
           let chatList = this.arrayExists(
             this.$store.state.Socket.chatList,
             data.group_id,
@@ -213,13 +228,16 @@ export default {
           );
           this.SET_CHAT_LIST(chatList);
         }
+        // else if(this.$store.state.Socket.activityGroup.activityId != newVal.group_id){
+
+        // }
       },
       deep: true,
     },
   },
   methods: {
     ...mapActions(["getGroupList",'getAwaitList','getCurrentListData']),
-    ...mapMutations(["SET_CHAT_LIST","SET_CURRENT_USER",'SET_CURRENT_CHAT_LIST','SET_GROUP_CHAT_NUM','SET_STATUS']),
+    ...mapMutations(["SET_CHAT_LIST","SET_CURRENT_USER",'SET_CURRENT_CHAT_LIST','SET_GROUP_CHAT_NUM','SET_STATUS','SET_ACTIVITY_GROUP']),
     selectMenu(val) {
       this.selectedKey = val.key;
     },
@@ -271,7 +289,7 @@ export default {
   created() {},
   mounted() {
     this.updateKefuStatus();
-    // this.getGroupList();
+    this.getGroupList({ kefu_id:this.$store.state.Login.userInfo.kefu_id});
     // this.getCurrentUserListData()
     // 等待接入
      this.getAwaitList({
@@ -317,5 +335,9 @@ export default {
     padding: 0 5px;
     font-size: 10px;
     line-height: 16px;
+}
+/deep/ .ant-badge-dot{
+  width: 10px;
+  height: 10px;
 }
 </style>

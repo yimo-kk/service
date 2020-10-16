@@ -530,18 +530,6 @@ export default {
   mounted() {
     let oldArr = JSON.parse(JSON.stringify(this.currentChatList))
     this.getCurrentList()
-    // .then((result) => {
-    //   result.forEach(item=>{
-    //     oldArr.forEach(data=>{
-    //     })
-    //   })
-    // }).catch((err) => {
-    // });
-    // this.getUserChatLog({
-    //           username: this.currentUser.activtyeUsername,
-    //           kefu_code: this.$store.state.Login.userInfo.kefu_code,
-    //           kefu_id: this.$store.state.Login.userInfo.kefu_id,
-    //         });
     let _this = this;
     document.addEventListener("click", function (e) {
       // 下面这句代码是获取 点击的区域是否包含你的菜单，如果包含，说明点击的是菜单以外，不包含则为菜单以内

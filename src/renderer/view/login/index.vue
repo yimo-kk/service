@@ -47,13 +47,8 @@
 </template>
 
 <script>
-import {
-    BrowserWindow,remote
-} from "electron";
-import {
-    mapActions,
-    mapMutations
-} from "vuex";
+import { BrowserWindow,remote} from "electron";
+import { mapActions } from "vuex";
 export default {
     name: "Login",
     components: {},
@@ -74,8 +69,6 @@ export default {
     watch: {},
     methods: {
         ...mapActions(["handleLogin", "getUserInfo"]),
-        ...mapMutations(["SET_AWAIT_LIST", "SET_CHAT_LIST",'SET_CURRENT_CHAT_LIST']),
-
         handleSubmit(e) {
             e.preventDefault();
             this.loginParam.validateFields((err, values) => {
@@ -104,11 +97,7 @@ export default {
                                 res.code === 0 &&
                                     this.$router.push({
                                         name: "Home",
-                                    });
-                                    this.SET_AWAIT_LIST([])
-                                    this.SET_CURRENT_CHAT_LIST([])
-                                    this.SET_CHAT_LIST([])
-                                    
+                                    }); 
                             });
                         } else {
                             this.$toast({
@@ -131,7 +120,8 @@ export default {
             }
         },
         },
-    created() {},
+    created() {
+    },
     mounted() {
         let data = localStorage.getItem('loginData')
         if(data){
