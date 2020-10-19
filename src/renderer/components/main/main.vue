@@ -1,11 +1,9 @@
 <template>
-  <a-layout style="height:100%;">
+  <div style="height:100%;">
+    <!-- <HeaderTop></HeaderTop> -->
+    <a-layout style="height:100%;">
     <a-layout-header class="header">
       <div class="header">
-        <div class="log">
-          <img src="../../assets/logo.png" alt />
-          <p class="systemName">客服系统</p>
-        </div>
         <a-menu
           theme="dark"
           mode="horizontal"
@@ -54,6 +52,7 @@
       </div>
     </a-layout>
   </a-layout>
+  </div>
 </template>
 
 <script>
@@ -61,6 +60,7 @@ import serviceHeader from "@/components/serviceHeader/serviceHeader.vue";
 import AwaitChat from "@/view/awaitChat/index";
 import CurrentChat from "@/view/currentChat/index";
 import GroupChat from "@/view/groupChat/index";
+// import HeaderTop from "./headerTop";
 import { updateKefuStatus } from "@/api/login";
 import common from "@/mixins/common";
 import { handleRelink } from "@/api/current.js";
@@ -73,6 +73,7 @@ export default {
     AwaitChat,
     CurrentChat,
     GroupChat,
+    // HeaderTop
   },
   data() {
     return {
@@ -297,12 +298,13 @@ export default {
       username: "",
     });
     this.$electron.ipcRenderer.on("before_closed",()=>{
+        this.$router.push({name:'Login'})
         this.$store.commit('SET_USER_INFO','')
         this.$store.commit('RESETVUEX')
-       localStorage.removeItem('accessToken')
+        localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
         localStorage.removeItem('userInfo')
-   
+        this.$electron.ipcRenderer.send('app-exit')
     });
   },
 };
@@ -313,24 +315,7 @@ export default {
   display: flex;
   justify-content: space-between;
 
-  .log {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-right: 100px;
-    margin-left: -20px;
-
-    img {
-      width: 50px;
-      height: 50px;
-      border-radius: 10px;
-    }
-
-    .systemName {
-      color: #7c32af;
-      margin-left: 20px;
-    }
-  }
+ 
 }
 
 .body_content {

@@ -1,6 +1,7 @@
 import {
     getGroupList
 } from "@/api/group.js";
+import Toast from '@/components/Toast/toast'
 import router from '@/router'
 import { getCustomerQueue } from "@/api/await.js";
 import { getNowServiceList } from "@/api/current.js";
@@ -50,7 +51,6 @@ const getters = {
 const mutations = {
     // connect:查看socket是否渲染成功
     SOCKET_connect: (state) => {
-        // state.kefuStatus = true
     },
     // disconnect:检测socket断开连接
     SOCKET_disconnect: (data) => {
@@ -60,6 +60,8 @@ const mutations = {
         
     },
     SOCKET_delKefu: (state,data) => {
+        Toast( { icon: 'close',
+        content: data.message})
         router.push({name:'Login'})
     },
     //收到用户消息
@@ -215,8 +217,11 @@ const actions = {
       getCurrentListData({ state,commit }) {
         return new Promise(async (resolve, reject) => {
             getNowServiceList().then((result) => {
+                let list= JSON.parse(JSON.stringify(state.currentChatList))
                 let currentChatList = result.data.map(item=>{
-                    item.isMultitap = false
+                    list.forEach(val=>{
+                        val.isMultitap?item.isMultitap = true:item.isMultitap = false
+                    })
                     return item
                 })
                 commit('SET_CURRENT_CHAT_LIST', currentChatList)

@@ -1,6 +1,6 @@
 <template>
   <div class="serviceHeader">
-    <div v-if="Object.keys(this.$store.state.Login.userInfo).length>0" class="flex_up_down_center">
+    <div v-if="Object.keys(this.$store.state.Login.userInfo).length>0" class="flex_up_down_center" >
       <div>
         <a-badge
           :status=" kefuStatus == 1 ? 'success':kefuStatus == 2 ? 'warning':'default'"
@@ -37,14 +37,6 @@
         </a-dropdown>
       </div>
     </div>
-    <!-- <div v-else>
-      <a-avatar>
-        <a-icon slot="icon" type="user" />
-      </a-avatar>
-      <router-link :to="{name:'Login'}">
-        <a-button type="link">未登录...</a-button>
-      </router-link>
-    </div>-->
   </div>
 </template>
 
@@ -64,11 +56,6 @@ export default {
     }
   },
   watch: {
-     kefuStatus: {
-      handler(newVal) {
-        // this.$message.success(`${newVal == 1 ?'修改为在线状态':newVal == 2 ? '修改为离开状态':'修改为离线状态'}`)
-      }
-     }
   },
   methods: {
     ...mapMutations(['RESETVUEX']),
@@ -116,7 +103,7 @@ export default {
   color: #fff;
   margin-right: -30px;
   padding-top: 15px;
-
+  
   .login_state {
     padding-top: 10px;
   }

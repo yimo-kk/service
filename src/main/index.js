@@ -60,8 +60,8 @@ function implementSystemTray(){
     },
      {
       label:'退出',
-      click:()=>{
-        app.quit()
+      click:(event)=>{
+        mainWindow.webContents.send('before_closed');
       }
     }
   ])
@@ -102,37 +102,26 @@ function implementSystemTray(){
     appTray.popUpContextMenu(trayContextMenu)
   })
 }
-// // 关闭应用前事件
-// app.on('before-quit',(event)=>{
-//   console.log(1)
-//   event.preventDefault()
-//     mainWindow.webContents.send('before_closed');
-// })
-// app.on('close',(event)=>{
-//   console.log(2)
-//   event.preventDefault()
-//   mainWindow.webContents.send('before_closed');
-// })
-// app.on('quit',(event)=>{
-//   console.log(3)
-//   event.preventDefault()
-//   mainWindow.webContents.send('before_closed');
-// })
-// app.on('will-quit',(event)=>{
-//   console.log(4)
-//   event.preventDefault()
-//   mainWindow.webContents.send('before_closed');
-// })
-
+app.on('ready', async ()=>{
+  // 创建渲染窗口
+  createWindow()
+  implementSystemTray()
+  // 设置快捷键
+  globalShortcut.register('Ctrl+Alt+Z', function () {
+    mainWindow.show()
+  })
+  mainWindow.on('close',(event)=>{
+    event.preventDefault()
+    mainWindow.webContents.send('before_closed');
+  })
+})
 app.on('window-all-closed', (event) => {
-  console.log(5)
   // event.preventDefault()
   mainWindow.webContents.send('before_closed');
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
-
 app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
@@ -167,13 +156,27 @@ notification.on('click',()=>{
 })
   
 })
-app.on('ready', async ()=>{
-  // 创建渲染窗口
-  createWindow()
-  implementSystemTray()
-  // 设置快捷键
-  globalShortcut.register('Ctrl+Alt+Z', function () {
-    mainWindow.show()
-  })
- 
+// // 自定义
+// ipcMain.on('window-min', () => {
+//   mainWindow.minimize()
+// })
+
+// ipcMain.on('window-max', () => {
+//   if (mainWindow.isMaximized()) {
+//     mainWindow.restore()
+//   } else {
+//     mainWindow.maximize()
+//   }
+// })
+
+// ipcMain.on('window-close', () => {
+//   let wins = BrowserWindow.getAllWindows()
+//   for (let i = 0; i < wins.length; i++) {
+//     wins[i].close()
+//   }
+// })
+
+ipcMain.on('app-exit', () => {
+  // 所有窗口都将立即被关闭，而不询问用户，而且 before-quit 和 will-quit 事件也不会被触发。
+  app.exit()
 })

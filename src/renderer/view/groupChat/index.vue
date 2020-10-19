@@ -163,7 +163,7 @@
       </a-col>
     </a-row>
      <!-- 无会话展示 -->
-    <div v-else>
+    <div v-else style="paddingTop:35px">
       <a-empty :image-style="{
       height: '100%',
     }">
@@ -261,6 +261,7 @@ export default {
     },
   },
   watch: {
+    
     groupMessage: {
       handler(newVal) {
         let data = JSON.parse(JSON.stringify(newVal));
@@ -275,6 +276,7 @@ export default {
     // 拉黑
     groupBlack:{
         handler(newVal) {
+          console.log(newVal,44)
         let data = JSON.parse(JSON.stringify(newVal));
         data.forbid = 'forbid'
         this.chatLogList.push(data);
@@ -460,7 +462,6 @@ export default {
       }
       let arr = this.handleGroupUser.map((item) => {
         if(item.type == 1){ 
-          // return item.kefu_code;
           return { 
             kefu_code:item.kefu_code,
             username:item.username,
@@ -541,7 +542,6 @@ export default {
         }else {
           return {ip:item.login_ip,username:item.username};
         }
-        // return {ip:item.login_ip,uid:item.uid,username:item.username};
       });
       this.addBlacklist(arr);
     },   
@@ -679,6 +679,9 @@ export default {
         return vals.includes(item.uid);
       });
     },
+    updataBlack(){
+      
+    }
   },
   created() {},
   mounted() {

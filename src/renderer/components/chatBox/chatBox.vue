@@ -604,7 +604,7 @@ export default {
           type:state
         }]
       }else {
-        params=[{username:from_name,  ip:from_ip,}]
+        params=[{username:from_name,  ip:from_ip}]
       }
       this.$emit("addBlacklist", params);
     },

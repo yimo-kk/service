@@ -107,7 +107,7 @@
       </a-row>
     </div>
     <!-- 无会话展示 -->
-    <div v-else-if="!loading">
+    <div v-else-if="!loading" style="paddingTop:35px">
       <a-empty :image-style="{
       height: '100%',
     }">
