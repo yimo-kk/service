@@ -276,7 +276,6 @@ export default {
     // 拉黑
     groupBlack:{
         handler(newVal) {
-          console.log(newVal,44)
         let data = JSON.parse(JSON.stringify(newVal));
         data.forbid = 'forbid'
         this.chatLogList.push(data);
