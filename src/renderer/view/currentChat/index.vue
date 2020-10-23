@@ -440,6 +440,17 @@ export default {
         id = this.currentUser.activtyUid
         userNmae = this.currentUser.activtyeUsername
       }
+       console.log({
+        user_id: id,
+        user_name: userNmae,
+        from_kefu_id: this.$store.state.Login.userInfo.kefu_id,
+        from_kefu_name: this.$store.state.Login.userInfo.kefu_name,
+        from_kefu_code: this.$store.state.Login.userInfo.kefu_code,
+        to_kefu_code: val.kefu_code,
+        to_kefu_name: val.kefu_name,
+        seller_code: this.$store.state.Login.userInfo.seller_code,
+        cmd: "service-relink"}
+      )
       this.$socket.emit("message", {
         user_id: id,
         user_name: userNmae,

@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { BrowserWindow,remote} from "electron";
+const session = require('electron').remote.session;
 import { mapActions } from "vuex";
 export default {
     name: "Login",
@@ -63,7 +63,8 @@ export default {
                 shopCode:'',
                 account:'',
                 password:''
-            }
+            },
+             url: window.location.protocol+"//"+window.location.host
         };
     },
     computed: {},
@@ -75,23 +76,21 @@ export default {
             this.loginParam.validateFields((err, values) => {
                 if (!err) {
                     let params = {
-                        username: values.account,
-                        password: values.password,
-                        seller_code: values.shopCode,
-                        // username: "zhoushigang",
-                        // password: "123456",
-                        // seller_code: "5f0992f981e27",
-                        
-                    };
+                      username: values.account,
+                      password: values.password,
+                      seller_code: values.shopCode,
+                };
                  
-                    if(values.remember){
-                        localStorage.setItem('loginData',JSON.stringify(params))
+                if(values.remember){
+                      this.setCookie('seller_code',params.seller_code)
+                      this.setCookie('username',params.username)
+                      this.setCookie('password',params.password)
                     }else {
-                       localStorage.removeItem('loginData') 
-                    }
-                    this.loading = true;
-                    params.login_ip=this.ip
-                    this.handleLogin(params).then((result) => {
+                  this.clearCookies()
+                }
+                this.loading = true;
+                params.login_ip=this.ip
+                this.handleLogin(params).then((result) => {
                         if (result.code === 0) {
                             localStorage.setItem("accessToken", result.data.accessToken);
                             localStorage.setItem("refreshToken", result.data.refreshToken);
@@ -109,8 +108,8 @@ export default {
                             });
                         }
                     }).catch(error=>{
-                        this.loading = false;
-                    })
+                    this.loading = false;
+                })
                 }
             });
         },
@@ -123,21 +122,57 @@ export default {
                 callback();
             }
         },
+        // 存储账号等
+        setCookie(name,value){
+            let Days = 300;
+            let exp = new Date();
+            let date = Math.round(exp.getTime() / 1000) + Days * 24 * 60 * 60;
+             const cookie = {
+              url:this.url,
+              name: name,
+              value: value,
+              expirationDate: date
+            };
+            session.defaultSession.cookies.set(cookie, (error) => {
+              if (error) console.error(error);
+            });
+        },
+        /**
+         * 获得
+         */
+        getCookies() {
+          session.defaultSession.cookies.get({ url: this.url },  (error, cookies)=> {
+            console.log(cookies,9999);
+            if (cookies.length > 0) {
+              this.$nextTick(()=>{
+                  this.loginData = {
+                  account:cookies[1].name == 'username' ? cookies[1].value:'', 
+                  password:cookies[2].name  == 'password' ? cookies[2].value:'',
+                  shopCode:cookies[0].name  == 'seller_code' ? cookies[0].value:''
+                }
+              })
+            }
+          });
+        },
+        /**
+         * 清空缓存
+         */
+        clearCookies () {
+          session.defaultSession.clearStorageData({
+            origin: this.url,
+            storages: ['cookies']
+          }, function (error) {
+            console.log(error)
+            if (error) console.error(error);
+          })
+        },
         },
     created() {
-    },
+    }, 
     mounted() {
         this.ip = returnCitySN["cip"]; // ip
         this.$store.commit('SET_USER_IP',{ip:this.ip})
-        let data = localStorage.getItem('loginData')
-        if(data){
-            let {username,password,seller_code} = JSON.parse(data)
-            this.loginData = {
-                account:username,
-                password,
-                shopCode:seller_code
-            }
-        }
+        this.getCookies()
     },
 };
 </script>

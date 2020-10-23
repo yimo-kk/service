@@ -74,3 +74,6 @@ export function compressImage(file, success, error) {
       error(e);
     };
   }
+  // localStorage 存储数据
+export function setLocalStorage(){} 
+ 

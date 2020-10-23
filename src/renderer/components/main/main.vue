@@ -130,6 +130,7 @@ export default {
     // 收到转接
     relinkMessage: {
       handler(newVal) {
+        console.log(newVal,222)
         let val = JSON.parse(JSON.stringify(newVal));
         if (val.kefu_code == this.$store.state.Login.userInfo.kefu_code) {
           this.play();
@@ -192,7 +193,6 @@ export default {
             "isVisible_box",
             `${data.from_name}给你发了新消息了`
           );
-          // if(newVal.from_name != this.$store.state.Socket.currentUser.activtyeUsername){
           if(this.selectedKey !='CurrentChat' || this.$store.state.Socket.currentUser.activtyeUsername != newVal.from_name){
               let arr = JSON.parse(JSON.stringify(this.currentChatList))
               let list = arr.map((item) => {

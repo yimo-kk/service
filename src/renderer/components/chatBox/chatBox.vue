@@ -343,7 +343,7 @@ export default {
       deep: true,
     },
     sendText(newVal){
-       if (newVal.length >= 1024) {
+       if (newVal.length >= 128) {
           this.sendText = newVal.slice(0, 10);
         }
     },

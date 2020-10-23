@@ -39,7 +39,11 @@ if(localStorage.getItem('userInfo')){
       debug: true,
       connection: SocketIO.connect(`wss://server.nikidigital.net`, {
         path: `/socket.io/?username=${userInfo.kefu_code}&code=${userInfo.seller_code}&`,
-        transports: ["websocket"]
+        transports: ["websocket"],
+        // reconnection:true,
+        // reconnectionAttempts:100,
+        // reconnectionDelay :1000,
+        // reconnectionDelayMax :5000,
       }),
       vuex: {
         store,
