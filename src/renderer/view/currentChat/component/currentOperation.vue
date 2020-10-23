@@ -4,11 +4,11 @@
       <p class="title">访问信息</p>
       <p class="subTitle">
         IP:
-        <span>{{ currentUser.login_ip}}</span>
+      {{currentUser.login_ip}}
       </p>
-      <p class="subTitle">
+      <p class="subTitle dwote" :title="currentUser.area">
         地区：
-        <span>{{ currentUser.area}}</span>
+      {{ currentUser.area}}
       </p>
     </div>
     <div class="remark info">
@@ -74,6 +74,7 @@ export default {
     .subTitle {
       padding: 0 10px;
       height: 35px;
+      width: 100%;
       line-height: 35px;
 
       span {

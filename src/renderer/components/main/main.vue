@@ -1,6 +1,5 @@
 <template>
   <div style="height:100%;">
-    <!-- <HeaderTop></HeaderTop> -->
     <a-layout style="height:100%;">
     <a-layout-header class="header">
       <div class="header">
@@ -33,7 +32,6 @@
               <customIcon type="icon--qunliaoshezhi" style="color:#fff;fontSize:18px"></customIcon>
               <p>群聊管理</p>
               <a-badge :count="$store.getters.groupChatNum" :overflow-count="99"  :offset="[0,-10]" > </a-badge>
-              <!-- <a-badge :dot='true'  v-show="$store.getters.groupChatNum" :offset="[0,-10]" /> -->
             </div>
           </a-menu-item>
         </a-menu> 
@@ -144,7 +142,7 @@ export default {
             okText: "确认",
             cancelText: "拒绝",
             onOk() {
-              that.$socket.emit("message", {
+              that.$socket.emit("message", { 
                 username: val.user_name,
                 from_kefu_code: val.from_kefu_code,
                 kefu_name: val.kefu_name,

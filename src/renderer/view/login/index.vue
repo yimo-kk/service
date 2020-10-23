@@ -54,6 +54,7 @@ export default {
     components: {},
     data() {
         return {
+            ip:'',
             loading: false,
             loginParam: this.$form.createForm(this, {
                 name: "login",
@@ -80,13 +81,16 @@ export default {
                         // username: "zhoushigang",
                         // password: "123456",
                         // seller_code: "5f0992f981e27",
+                        
                     };
+                 
                     if(values.remember){
                         localStorage.setItem('loginData',JSON.stringify(params))
                     }else {
                        localStorage.removeItem('loginData') 
                     }
                     this.loading = true;
+                    params.login_ip=this.ip
                     this.handleLogin(params).then((result) => {
                         if (result.code === 0) {
                             localStorage.setItem("accessToken", result.data.accessToken);
@@ -123,6 +127,8 @@ export default {
     created() {
     },
     mounted() {
+        this.ip = returnCitySN["cip"]; // ip
+        this.$store.commit('SET_USER_IP',{ip:this.ip})
         let data = localStorage.getItem('loginData')
         if(data){
             let {username,password,seller_code} = JSON.parse(data)

@@ -24,25 +24,6 @@ const  customIcon = Icon.createFromIconfontCN({
 })
 Vue.component('customIcon',customIcon)
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
-
-// socket
-// import SocketIO from "socket.io-client";
-// import VueSocketIO from "vue-socket.io";
-// if(localStorage.getItem('userInfo')){
-//   let userInfo = JSON.parse(localStorage.getItem('userInfo'))
-//   Vue.use(
-//     new VueSocketIO({
-//       debug: true,
-//       connection: SocketIO.connect(`wss://server.nikidigital.net`, {
-//         path: `/socket.io/?username=${userInfo.kefu_code}&code=${userInfo.seller_code}&`,
-//         transports: ["websocket"]
-//       }),
-//       store
-//     })
-//   );
-// } 
-// import axios from 'axios'
-// Vue.http = Vue.prototype.$http = axios
 import Toast from '@/components/Toast/toast'
 Vue.prototype.$toast = Toast
 Vue.config.productionTip = false

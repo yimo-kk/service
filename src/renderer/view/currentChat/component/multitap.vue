@@ -40,14 +40,6 @@
               </div>
               <div slot="operation" slot-scope="operation,data">
                  <a-button type="link" @click="relink(data)">转接</a-button>
-                <!-- <a-popconfirm
-                  :title="`您确定将${groupTitle}转接给${data.kefu_name}吗？`"
-                  ok-text="确定"
-                  cancel-text="在想想"
-                  @confirm="confirm(data)"
-                >
-                  <a-button type="link">转接</a-button>
-                </a-popconfirm> -->
               </div>
             </a-table>
           </div>

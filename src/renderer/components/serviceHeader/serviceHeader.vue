@@ -76,8 +76,8 @@ export default {
       });
     },
     refresh(){
-      // location. reload()
-      this.reload()
+      location. reload()
+      // this.reload()
     },
     setStatus(index){
       let that = this

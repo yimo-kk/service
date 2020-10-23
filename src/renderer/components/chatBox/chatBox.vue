@@ -177,10 +177,11 @@
           ></customIcon>
         </p>
       </div>
+      <!-- :auto-size="{ minRows: 3, maxRows: 5 }" -->
       <a-textarea
         v-model.trim="sendText"
         placeholder="请输入..."
-        :auto-size="{ minRows: 3, maxRows: 5 }"
+        style="height:75px"
         @keydown="enter"
       />
       <div class="send" @click="sendMessage(sendText, 0)">
@@ -340,6 +341,11 @@ export default {
         }
       },
       deep: true,
+    },
+    sendText(newVal){
+       if (newVal.length >= 1024) {
+          this.sendText = newVal.slice(0, 10);
+        }
     },
     logLoading(val) {
       this.loading = JSON.parse(JSON.stringify(val));

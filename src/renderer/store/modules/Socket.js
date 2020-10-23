@@ -95,7 +95,7 @@ const mutations = {
     // 收到拉黑全局提示
     SOCKET_groupBlack: (state, data) => {
         state.groupBlack = data
-    },
+    }, 
     // 个人提示已被拉黑
     SOCKET_userBlack: (state, data) => {
         state.userBlack = data

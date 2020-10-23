@@ -17,16 +17,15 @@ export default {
         return {
         reload: this.reload,
         }
-    },
+    }, 
     data () {
         return {
+            ip:'',
+            address:'',
               isRouterAlive: true // 控制视图是否显示的变量
         }
     },
     mounted () {
-      let ip = returnCitySN["cip"]; // ip
-        let adress = returnCitySN["cname"]; // 地址
-        this.$store.commit('SET_USER_IP',{ip,adress})
         // 禁止拖入文件图片等
         document.ondrop = function(event) {
             return false;
