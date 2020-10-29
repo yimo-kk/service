@@ -15,19 +15,36 @@ const instance = axios.create({
 })
 
 instance.interceptors.request.use(config => {
-  let accessToken = localStorage.getItem('accessToken')
-  let refreshToken = localStorage.getItem('refreshToken')
-  if(config.url !=="/service/doLogin" && (accessToken && refreshToken)){
-    config.headers['refresh-token'] = refreshToken
-    config.headers['access-token'] = accessToken
-  }else if(config.url !=="/service/doLogin") {
-    router.push({name:"Login"})
-    return
+  let accessToken
+  let refreshToken 
+  if(Object.keys(router.history.current.query).length){
+    let {  kefu_code ,seller_code} =router.history.current.query
+    if(localStorage.getItem(seller_code) && JSON.parse(localStorage.getItem(seller_code))[kefu_code]){
+      accessToken = JSON.parse(localStorage.getItem(seller_code))[kefu_code]['accessToken']
+      refreshToken = JSON.parse(localStorage.getItem(seller_code))[kefu_code]['refreshToken']
+    }
   }
+  
+  // let accessToken = localStorage.getItem('accessToken')
+  // let refreshToken = localStorage.getItem('refreshToken')
+  // if(config.url !=="/service/doLogin" && (accessToken && refreshToken)){
+  //   config.headers['refresh-token'] = refreshToken
+  //   config.headers['access-token'] = accessToken 
+  // }else if(config.url !=="/service/doLogin") {
+  //   router.push({name:"Login"})
+  //   return
+  // }
+  if((config.url !=="/service/doLogin" && config.url !=='/service/getKefuInfo' ) && (accessToken && refreshToken)){
+      config.headers['refresh-token'] = refreshToken
+      config.headers['access-token'] = accessToken 
+    }else if(config.url !=="/service/doLogin" && config.url !=='/service/getKefuInfo') {
+      router.push({name:"Login"})
+      return
+    }
   return config
 }, error => {
   Message.error(error)
-  Promise.reject(error)
+  Promise.reject(error) 
 })
 instance.interceptors.response.use(
   response => {

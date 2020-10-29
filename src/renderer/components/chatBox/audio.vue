@@ -3,13 +3,13 @@
     <!-- <a-spin>
         <a-icon slot="indicator" type="loading" style="font-size: 14px" spin />
     </a-spin> -->
-    <p class="time" style="marginleft:10px" v-if="playdata.from_name === $store.state.Login.userInfo.kefu_name  ">{{playdata.file_duration || playdata.message.duration}}"</p>
-    <div :class="['cricleplay',playdata.from_name ===  $store.state.Login.userInfo.kefu_name ? 'different':'']" status="stop" no="1">
+    <p class="time" style="marginleft:10px" v-if="playdata.from_name ===userInfo.kefu_name  ">{{playdata.file_duration || playdata.message.duration}}"</p>
+    <div :class="['cricleplay',playdata.from_name ===  userInfo.kefu_name ? 'different':'']" status="stop" no="1">
         <div class="small"></div>
         <div :class="['middle',play?'':'stopanimate']"></div>
         <div :class="['large',play?'':'stopanimate']"></div>
     </div>
-    <p class="time" v-if="playdata.from_name !== $store.state.Login.userInfo.kefu_name">{{playdata.file_duration || playdata.message.duration}}"</p>
+    <p class="time" v-if="playdata.from_name !==userInfo.kefu_name">{{playdata.file_duration || playdata.message.duration}}"</p>
      <!-- <a-spin /> -->
 </div>
 </template>
@@ -35,7 +35,11 @@ export default {
             play: JSON.parse(JSON.stringify(this.isPlay)),
         };
     },
-    computed: {},
+    computed: {
+         userInfo(){
+      return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
+    }
+    },
     watch: {
         isPlay(val) {
             this.play = this.isPlay;
@@ -53,7 +57,8 @@ export default {
         },
     },
     created() {},
-    mounted() {},
+    mounted() {
+    },
 };
 </script>
 

@@ -28,11 +28,11 @@
         <a-col :span="centerNum" style="height:100%">
           <div class="chat_content">
             <a-page-header
-              style="border: 1px solid rgb(235, 237, 240)"
+              style="background:#f5f5f5;border-bottom: .5px solid #efefef"
               :title="currentUser.activtyeUsername"
             >
               <template slot="extra">
-                <p key="1" class="more" @click="clickMore" :title="rightNum?'收起':'展开'">
+                <p key="1" class="more" @click="clickMore" :title="rightNum?$t('putAway'):$t('unfold')">
                   <a-icon type="ellipsis" />
                 </p>
               </template>
@@ -45,24 +45,21 @@
               :logLoading='logLoading'
               @uploadImage="uploadImage"
               @uploadFile="uploadFile"
-            ></ChatBox>
+            ></ChatBox> 
           </div>
         </a-col>
         <a-col :span="rightNum">
           <transition name="bounce">
             <div v-show="rightNum" >
               <a-tabs type="card" @change="changeTabs" v-model="activityId">
-                <a-tab-pane key="1" tab="用户信息">
+                <a-tab-pane key="1" :tab="$t('currentInfo.userInfo')">
                   <CurrentOperation @multitapConversation='multitapConversation' @closeChat='closeConversation' ></CurrentOperation>
                 </a-tab-pane>
-                <a-tab-pane key="2" tab="快捷回复">
+                <a-tab-pane key="2" :tab="$t('currentInfo.quickReply')">
                   <div class="search" style="position:relative;">
-                    <a-input-search  v-model="searchKeyword" placeholder="请输入问题关键字" :loading='isSearch'   enter-button @search="onSearch"  />
+                    <a-input-search  v-model="searchKeyword" :placeholder="$t('currentInfo.pleaseEnterKeyword')" :loading='isSearch'   enter-button @search="onSearch"  />
                      <a-icon type="close" v-if="isSearchList" style="position: absolute;bottom: -22px;right: 10px;" @click="isSearchList=false"/>
                   </div>
-                  <!-- <div v-show="isSearch">
-                    <a-spin />
-                  </div> -->
                   <div v-if="isSearchList" class="question_list" >
                       <div v-if="searchList.length" style="padding:10px">
                          <div v-for="val in searchList" :key="val.word_id" style="padding:0 10px">
@@ -75,7 +72,7 @@
                           </div>
                       </div>
                       <div v-else class="not_available">
-                        暂无相关问题...
+                        {{$t('currentInfo.noRelatedQuestions')}}
                       </div>
                   </div>
                   <div v-else  class="question_list">
@@ -111,17 +108,17 @@
       <a-empty :image-style="{
       height: '100%',
     }">
-        <span slot="description">暂无会话...</span>
+        <span slot="description">{{$t('noCurrent')}}</span>
 
-        <a-button type="primary" @click="goAwaitChat">去接待</a-button>
+        <a-button type="primary" @click="goAwaitChat">{{$t('receive')}}</a-button>
       </a-empty>
     </div>
     <div id="close" v-show="close" class="menu_close" :style="{left:left+'px',top:top+'px'}">
       <p @click.stop="closeConversation">
-         <a-icon type="close-circle" style="color:#ccc" />  关闭会话
+         <a-icon type="close-circle" style="color:#ccc" />  {{$t('currentInfo.closeSession')}}
       </p>
       <p @click.stop="multitapConversation">
-        <customIcon type="icon-zhuanjie" style="fontSize:12px;color:#ccc"></customIcon>  转接会话
+        <customIcon type="icon-zhuanjie" style="fontSize:12px;color:#ccc"></customIcon>  {{$t('currentInfo.transferSession')}}
       </p>
     </div>
     <!-- 转接 -->
@@ -167,8 +164,8 @@ export default {
       logLoading:false,
       isSearch:false, 
       loading: false,
-      centerNum: 14,
-      rightNum: 5,
+      centerNum: 13,
+      rightNum: 6,
       currentChatLogList: [],
       replyList: [],
       close: false,
@@ -200,6 +197,9 @@ export default {
     currentChatList() {
       return this.$store.state.Socket.currentChatList;
     },
+     userInfo(){
+      return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
+    }
   },
   watch: {
     // 收到用户发来消息
@@ -219,7 +219,7 @@ export default {
     refuseMessage: {
       handler(newVal) {
         if (newVal.type) {
-          if (newVal.kefu_code === this.$store.state.Login.userInfo.kefu_code) {
+          if (newVal.kefu_code === this.userInfo.kefu_code) {
             this.SET_CURRENT_USER({
               activtyUid: null,
               activtyeUsername: "",
@@ -228,7 +228,13 @@ export default {
             });
             this.$message.success(newVal.message);
           }
-          this.getCurrentList(newVal.username);
+          let list=[]
+          JSON.parse(JSON.stringify(this.currentChatList)).forEach(item=>{
+            if(item.username != newVal.username){
+              list.push(item)
+            }
+          })
+            this.SET_CURRENT_CHAT_LIST(list)
         } else {
           this.$message.error(newVal.message);
         }
@@ -256,8 +262,8 @@ export default {
     },
     clickMore() {
       if (!this.rightNum) {
-        this.rightNum = 5;
-        this.centerNum = 14;
+        this.rightNum = 6;
+        this.centerNum = 13;
        
       } else {
         this.rightNum = 0;
@@ -274,8 +280,8 @@ export default {
       });
       this.getUserChatLog({
         username: data.username,
-        kefu_code: this.$store.state.Login.userInfo.kefu_code,
-        kefu_id: this.$store.state.Login.userInfo.kefu_id,
+        kefu_code: this.userInfo.kefu_code,
+        kefu_id: this.userInfo.kefu_id,
       });
     },
     getCurrentList(username) {
@@ -309,8 +315,8 @@ export default {
           }
            this.getUserChatLog({
               username: this.currentUser.activtyeUsername,
-              kefu_code: this.$store.state.Login.userInfo.kefu_code,
-              kefu_id: this.$store.state.Login.userInfo.kefu_id,
+              kefu_code: this.userInfo.kefu_code,
+              kefu_id: this.userInfo.kefu_id,
             });
         } else {
           this.loading = false;
@@ -354,21 +360,21 @@ export default {
           id= that.currentChatList[that.currentId].uid
           userNmae = that.currentChatList[that.currentId].username
           }
-        this.$confirm({
-          title: "提示",
+        this.$confirm({    
+           title: this.$t('prompt'),
           content: `您确定关闭与${userNmae}的会话吗？`,
-          okText: "确认",
-          cancelText: "取消",
+          okText: this.$t('determine'),
+          cancelText: this.$t('cancel'),
           onOk() {
             closeChat({
                 uid:id,
-                kefu_code: that.$store.state.Login.userInfo.kefu_code,
+                kefu_code: that.userInfo.kefu_code,
               }).then((result) => {
               if (result.code == 0) {
                 let params = {
-                  from_avatar: that.$store.state.Login.userInfo.kefu_avatar,
-                  from_name: that.$store.state.Login.userInfo.kefu_name,
-                  kefu_code: that.$store.state.Login.userInfo.kefu_code,
+                  from_avatar: that.userInfo.kefu_avatar,
+                  from_name: that.userInfo.kefu_name,
+                  kefu_code: that.userInfo.kefu_code,
                   username: userNmae,
                   cmd: "service-score",
                 };
@@ -385,8 +391,8 @@ export default {
     },
     getSellerWordList() {
       getSellerWordList({
-        seller_id: this.$store.state.Login.userInfo.seller_id,
-        seller_code: this.$store.state.Login.userInfo.seller_code,
+        seller_id: this.userInfo.seller_id,
+        seller_code: this.userInfo.seller_code,
       }).then((result) => {
         this.replyList = result.data;
       });
@@ -395,11 +401,11 @@ export default {
       if (type === 0 && !content.length) return;
       let my_send = {
         cmd: "service-msg",
-        from_id: this.$store.state.Login.userInfo.kefu_id,
-        from_name: this.$store.state.Login.userInfo.kefu_name,
-        from_avatar: this.$store.state.Login.userInfo.kefu_avatar,
-        kefu_code: this.$store.state.Login.userInfo.kefu_code,
-        seller_code: this.$store.state.Login.userInfo.seller_code,
+        from_id: this.userInfo.kefu_id,
+        from_name: this.userInfo.kefu_name,
+        from_avatar: this.userInfo.kefu_avatar,
+        kefu_code: this.userInfo.kefu_code,
+        seller_code: this.userInfo.seller_code,
         to_name: this.currentUser.activtyeUsername,
         to_id: this.currentUser.activtyUid,
         message: content,
@@ -440,26 +446,15 @@ export default {
         id = this.currentUser.activtyUid
         userNmae = this.currentUser.activtyeUsername
       }
-       console.log({
-        user_id: id,
-        user_name: userNmae,
-        from_kefu_id: this.$store.state.Login.userInfo.kefu_id,
-        from_kefu_name: this.$store.state.Login.userInfo.kefu_name,
-        from_kefu_code: this.$store.state.Login.userInfo.kefu_code,
-        to_kefu_code: val.kefu_code,
-        to_kefu_name: val.kefu_name,
-        seller_code: this.$store.state.Login.userInfo.seller_code,
-        cmd: "service-relink"}
-      )
       this.$socket.emit("message", {
         user_id: id,
         user_name: userNmae,
-        from_kefu_id: this.$store.state.Login.userInfo.kefu_id,
-        from_kefu_name: this.$store.state.Login.userInfo.kefu_name,
-        from_kefu_code: this.$store.state.Login.userInfo.kefu_code,
+        from_kefu_id: this.userInfo.kefu_id,
+        from_kefu_name: this.userInfo.kefu_name,
+        from_kefu_code: this.userInfo.kefu_code,
         to_kefu_code: val.kefu_code,
         to_kefu_name: val.kefu_name,
-        seller_code: this.$store.state.Login.userInfo.seller_code,
+        seller_code: this.userInfo.seller_code,
         cmd: "service-relink",
       });
       this.currentId=null 
@@ -494,8 +489,8 @@ export default {
       this.close= false
       this.multitapLoading = true;
       reLink({
-        seller_id: this.$store.state.Login.userInfo.seller_id,
-        kefu_code: this.$store.state.Login.userInfo.kefu_code,
+        seller_id: this.userInfo.seller_id,
+        kefu_code: this.userInfo.kefu_code,
       })
         .then((result) => {
           this.multitapLoading = false;
@@ -522,7 +517,7 @@ export default {
          return
       }
       searchSellerWord({
-        seller_code:this.$store.state.Login.userInfo.seller_code,
+        seller_code:this.userInfo.seller_code,
         keywords:val
       })
       .then((result) => {
@@ -571,8 +566,8 @@ export default {
 }
 
 .chat_content {
-  border-left: 1px solid #eee;
-  border-right: 1px solid #eee;
+  // border-left: 1px solid #eee;
+  // border-right: 1px solid #eee;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -581,6 +576,7 @@ export default {
 .chat_left {
   height: 100%;
   overflow: auto;
+  background-color: #eee;
 
   &::-webkit-scrollbar {
     width: 4px;

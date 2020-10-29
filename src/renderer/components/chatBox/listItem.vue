@@ -9,7 +9,7 @@
         <p :data-index='index'>{{groupData.create_time ||groupData.access_time }}</p>
     </div>
     <div v-show="groupData.isMultitap" class="multitap" >
-         <customIcon type="icon-zhuanjie" style="fontSize:12px;color:#1890ff" title="等待转接"></customIcon> 
+         <customIcon type="icon-zhuanjie" style="fontSize:12px;color:#1890ff" :title="$t('currentInfo.transfer')"></customIcon> 
     </div>
 </div>
 </template>

@@ -75,5 +75,11 @@ export function compressImage(file, success, error) {
     };
   }
   // localStorage 存储数据
-export function setLocalStorage(){} 
+export function isLocalStorage(key){
+  if(localStorage.getItem(key)){
+    return true
+  }else {
+    return false
+  }
+} 
  

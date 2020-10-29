@@ -1,71 +1,82 @@
 <template>
   <div class="serviceHeader">
-    <div v-if="Object.keys(this.$store.state.Login.userInfo).length>0" class="flex_up_down_center" >
+    <!-- this.$store.state.Login.userInfo -->
+    <div v-if="Object.keys( userInfo ).length>0" class="flex_up_down_center" >
       <div>
         <a-badge
           :status=" kefuStatus == 1 ? 'success':kefuStatus == 2 ? 'warning':'default'"
           style="display: flex;"
           :offset="[0,25]"
-          :title="kefuStatus == 1 ?'在线':kefuStatus == 2 ? '离开':'离线'"
+          :title="kefuStatus == 1 ?$t('online'):kefuStatus == 2 ? $t('goAway'):$t('offline')"
         >
-          <a-avatar :src="$store.state.Login.userInfo.kefu_avatar"   :title="kefuStatus == 1 ?'在线':kefuStatus == 2 ? '离开':'离线'" />
+          <a-avatar :src="userInfo.kefu_avatar"   :title="kefuStatus == 1 ?$t('online'):kefuStatus == 2 ? $t('goAway'):$t('offline')" />
         </a-badge>
       </div>
       <div class="flex_up_down_center login_state">
         <a-dropdown placement="bottomLeft">
           <a-button type="link">
-            {{ this.$store.state.Login.userInfo.kefu_name }}
+            {{userInfo.kefu_name }}
             <a-icon type="down" />
           </a-button>
           <a-menu slot="overlay">
             <a-menu-item>
-              <p @click="setStatus(1)">在线</p>
+              <p @click="setStatus(1)">{{$t('online')}}</p>
             </a-menu-item>
-            <a-menu-item>
-              <p @click="setStatus(2)">离开</p>
+            <a-menu-item> 
+              <p @click="setStatus(2)">{{$t('goAway')}}</p>
             </a-menu-item>
              <a-menu-item>
-              <p @click="setStatus(0)">离线</p>
+              <p @click="setStatus(0)">{{$t('offline')}}</p>
             </a-menu-item>
             <a-menu-item>
-              <p @click="refresh">刷新</p>
+              <p @click="refresh">{{$t('refresh')}}</p>
             </a-menu-item>
             <a-menu-item>
-              <p  @click="confirm">退出</p>
+              <p  @click="confirm">{{$t('outLogin')}}</p>
             </a-menu-item>
           </a-menu>
         </a-dropdown>
       </div>
     </div>
+    <div class="language"><span @click="changeLocale(localeval==='zh'?'en':'zh')" >{{localeval=='zh'?'English':'中文'}}</span></div>
   </div>
 </template>
 
 <script>
+import common from "@/mixins/common";
+import moment from 'moment'
+import 'moment/locale/zh-cn'
+moment.locale('zh-cn')
 import { mapMutations} from "vuex";
 export default {
   name: "ServiceHeader",
-  components: {},
+  mixins: [common()],
   inject: ['reload'],
   data() {
     return {
+       localeval:localStorage.getItem('lang') || 'zh' 
     };
   },
   computed: {
      kefuStatus() {
       return this.$store.state.Socket.kefuStatus.online_status
+    },
+    userInfo(){
+      return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
     }
   },
   watch: {
   },
   methods: {
+    moment,
     ...mapMutations(['RESETVUEX']),
     confirm() {
       let that = this
       this.$confirm({
-        title: "提示",
-        content: "确定要退出登录吗？",
-        okText: "确认",
-        cancelText: "取消",
+        title: this.$t('prompt'),
+        content: this.$t('loginPrompt'),
+        okText: this.$t('determine'),
+        cancelText: this.$t('cancel'),
         onOk() {
           that.$router.push({
             name: "Login",
@@ -82,15 +93,31 @@ export default {
     setStatus(index){
       let that = this
        this.$confirm({
-        title: '提示',
+        title: this.$t('prompt'),
         content: `确认修改为${index == 1 ?'在线':index == 2 ? '离开':'离线'}状态？`,
-        okText: '确认',
-        cancelText: '取消',
+       okText: this.$t('determine'),
+        cancelText: this.$t('cancel'),
          onOk() {
            that.$emit('setStatus',index)
          } 
       });
-    }
+    },
+    changeLocale (localeval) {
+      this.localeval = localeval
+        if (localeval === 'en') {
+          moment.locale('en')
+          this.$i18n.locale = 'en'
+          localStorage.setItem('lang', 'en')
+          this.$nextTick(()=>{
+            this.locale = null
+          })
+        } else {
+          moment.locale('zh')
+          this.$i18n.locale = 'zh'
+          localStorage.setItem('lang', 'zh')
+          this.setLocale()
+        }
+      }
   },
 
   created() {},
@@ -102,14 +129,29 @@ export default {
 .serviceHeader {
   color: #fff;
   margin-right: -30px;
-  padding-top: 15px;
-  
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
   .login_state {
+    margin: 0 5px;
     padding-top: 10px;
   }
 
   .notLogin {
     padding-top: 10px;
+  }
+  .language{
+    display: flex;
+    padding-right: 10px;
+    margin-right: -20px;
+    span{ 
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      line-height: 20px;
+      font-size: 12px;
+      padding: 0px 3px;
+      cursor: pointer;
+    }
   }
 }
 </style>

@@ -11,7 +11,7 @@
           <div v-else>
             <div
             class="message_left"
-            v-if="item.from_name !== $store.state.Login.userInfo.kefu_name"
+            v-if="item.from_name !==userInfo.kefu_name"
           >
             <img 
               :data-index="index"
@@ -78,11 +78,11 @@
           </div>
           <div
             class="message_right"
-            v-else-if="item.from_name === $store.state.Login.userInfo.kefu_name"
+            v-else-if="item.from_name === userInfo.kefu_name"
           >
             <div class="name_content_right">
               <span v-if="isName" style="marginBottom: 2px; fontSize: 12px">{{
-                $store.state.Login.userInfo.kefu_name
+                userInfo.kefu_name
               }}</span>
               <div class="chat_content chat_content_right">
                 <p style="white-space: pre-line;" v-if="item.type === 0">{{ item.content || item.message }}</p>
@@ -143,49 +143,54 @@
     <div class="input_box">
       <div class="other flex_up_down_center">
         <customIcon
+          :title="$t('currentInfo.expression')"
           type="icon-biaoqing1"
           style="fontSize: 20px; padding: 8px 0 0 8px"
           @click="faceContent"
         ></customIcon>
         <a-upload
           name="file"
+           :title="$t('currentInfo.image')"
           :showUploadList="false"
           :customRequest="uploadImage"
           accept="image/png, image/gif, image/jpg, image/webp, image/jpeg"
         >
           <customIcon
+           :title="$t('currentInfo.image')"
             type="icon-tupian"
             style="fontSize: 20px; padding: 8px 0 0 8px"
           ></customIcon>
-        </a-upload>
+        </a-upload> 
         <a-upload
-        v-show="!isHeadImg"
+          v-show="on_file"
           name="file"
           :showUploadList="false"
           :customRequest="uploadFile"
           accept="*"
         >
           <customIcon
+          :title="$t('currentInfo.file')"
             type="icon-wenjian"
             style="fontSize: 20px; padding: 8px 0 0 8px"
           ></customIcon>
         </a-upload>
-        <p @click="voice" v-show="!isHeadImg">
+        <p @click="voice" v-show="on_voice">
           <customIcon
+          :title="$t('currentInfo.voice')"
             type="icon-yuyin-"
             style="fontSize: 20px; padding: 8px 0 0 8px"
           ></customIcon>
         </p>
       </div>
-      <!-- :auto-size="{ minRows: 3, maxRows: 5 }" -->
       <a-textarea
         v-model.trim="sendText"
-        placeholder="请输入..."
+        :placeholder="$t('currentInfo.pleaseEnter')"
         style="height:75px"
         @keydown="enter"
       />
-      <div class="send" @click="sendMessage(sendText, 0)">
-        <p :class="['send_btn', sendText.length ? 'activt_btn' : '']">发送</p>
+      <div class="send" @click="sendMessage(sendText, 0)"  title='Enter  发送
+Enter+Ctrl/Shift  换行'>
+        <p :class="['send_btn', sendText.length ? 'activt_btn' : '']" >{{$t('currentInfo.send')}}</p>
       </div>
       <!-- 表情区域 -->
       <div v-show="faceShow">
@@ -211,17 +216,17 @@
         <div>
           <img src="@/assets/voice.gif" width="100px" height="100px" />
           <br />
-          <p>正在录音请说话...</p>
+          <p>{{$t('recording')}}</p>
         </div>
         <div class="Pc_btn">
           <span
             class="flex_center"
             style="cursor: pointer"
             @click="stopRecorder"
-            >发送</span
+            >{{$t('currentInfo.send')}}</span
           >
           <span class="flex_center" style="cursor: pointer" @click="cancelAudio"
-            >取消</span
+            >{{$t('cancel')}}</span
           >
         </div>
       </div>
@@ -241,16 +246,6 @@
         ></customIcon>
         <img alt="example" style="height:100%;padding:10px" v-lazy="previewImage" />
     </div>
-    <!-- <a-modal
-      :visible="previewVisible"
-      :footer="null"
-      @cancel="previewVisible = false"
-      :bodyStyle="{ display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'}"
-    >
-      <img alt="example" style="height:100%;" :src="previewImage" />
-    </a-modal> -->
     <!-- 播放录音 -->
     <audio ref="audio" @ended="playEnd" style="display: none"></audio>
     <!-- 点击头像 -->
@@ -260,19 +255,19 @@
       :style="{ left: left + 'px', top: top + 'px' }"
     >
       <p @click.stop="stopSpeak">
-          禁言
+          {{$t('groupInfo.mute')}}
       </p>
        <p @click.stop="removeforbid">
-          解除禁言
+          {{$t('groupInfo.unmute')}}
       </p>
       <p @click.stop="addBlacklist">
-          加入黑名单
+          {{$t('groupInfo.addBlack')}}
       </p>
         <p @click.stop="removeblack">
-          移除黑名单
+          {{$t('groupInfo.removeBlack')}}
       </p>
       <p @click.stop="kickOutOrstopSpeak(2)"  v-show="$store.state.Socket.activityGroup.is_invite">
-        踢出群聊
+        {{$t('groupInfo.kickOut')}}
       </p>
     </div>
   </div>
@@ -311,6 +306,14 @@ export default {
       type: Boolean,
       default: false,
     },
+     on_file: {
+      type: Number,
+      default: 1,
+    },
+     on_voice: {
+      type: Number,
+      default: 1,
+    },
   },
   components: {
     Audio,
@@ -332,7 +335,11 @@ export default {
       selectUser: {},
     };
   },
-  computed: {},
+  computed: {
+     userInfo(){
+      return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
+    }
+  },
   watch: {
     "chatLogList.length": {
       handler(newVal, oldVal) {
@@ -422,7 +429,7 @@ export default {
        this.messageDown()
     },
     // 播放语音
-    playRecord(stream, index,bool) {
+    playRecord(stream, index,bool) {  
       this.currentIndex = index;
        let audio = this.$refs.audio;
       if(bool){
@@ -485,7 +492,7 @@ export default {
       this.loading = true;
       uploadVoice({
         params: formdata,
-        seller_code: this.$store.state.Login.userInfo.seller_code,
+        seller_code: this.userInfo.seller_code || this.$route.query.seller_code,
       })
         .then((result) => {
           this.loading = false;
@@ -774,7 +781,7 @@ export default {
 
   .input_box {
     position: relative;
-    border-top: 1px solid #ccc;
+    border-right: 1px solid #eee;
     min-height: 220px;
     background-color: #fff;
 
@@ -908,14 +915,14 @@ export default {
 .click_head_portrait {
   position: fixed;
   background-color: #fff;
-  box-shadow: 0px 0px 4px 1px #ccc;
+  box-shadow: 0px 0px 5px 2px #eee;
   color: #000;
   font-size: 12px;
   z-index: 11;
   cursor: pointer;
   p {
-    padding: 2px 5px;
-    border-bottom: 1px solid #ccc;
+    padding: 5px 10px;
+    border-bottom: 1px solid #eee;
     &:hover {
       background-color: #eee;
       color: #1890ff;

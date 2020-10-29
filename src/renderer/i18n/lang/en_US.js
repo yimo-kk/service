@@ -1,0 +1,92 @@
+module.exports = {
+  online:'Online',
+  offline:'Offline',
+  goAway:'go away',
+  refresh:'Refresh',
+  outLogin:'drop out',
+  determine:'determine',
+  cancel:'cancel',
+  refuse:'Refuse',
+  prompt:'prompt',
+  loginPrompt:'Are you sure you want to log out?',
+  noCurrent:'No sessions...',
+  notification:'Transfer notification',
+  noGroup:'No group chat, please contact the business to create a group',
+  receive:'To receive',
+  recording:'Talking in recording...',
+  putAway:"Put away",
+  unfold:'Unfold',
+  topTitle:{
+    currentChat:'Current session',
+    awaitChat:'Pending session',
+    groupChat:'Group chat management',
+  },
+  currentInfo:{
+    userInfo:'User Info',
+    quickReply:'Quick Reply',
+    accessInformation:'Access information',
+    otherOperations:'Other operations',
+    pleaseEnterKeyword:'Please enter the question keyword',
+    noRelatedQuestions:'No related questions...',
+    ip:'ip',
+    area:'area',
+    transferCurrentConversation:'Transfer current conversation',
+    transferSession:'Transfer session',
+    closeCurrentSession:'Close current session',
+    closeSession:'Close session',
+    expression:'expression',
+    image:'image',
+    file:'file',
+    voice:'voice',
+    send:'Send',
+    pleaseEnter:'please enter...',
+    transfer:'Waiting for transfer'
+  },
+  awaitInfo:{
+    title:'List of waiting users',
+    search:'please enter user name',
+    tableTitle:{
+      visitorAvatar:'Visitor avatar',
+      visitorName:'Visitor name',
+      visitorIp:'Visitor ip',
+      interviewTime:'interview time',
+      visitorType:'Visitor type',
+      operating:'operating',
+      Tourist:'Tourist',
+      user:'user',
+      reception:'Reception'
+    }
+  },
+  groupInfo:{
+    groupMember:'Group member',
+    admin:'(administrator)',
+    banned:'Banned',
+    blocked:'Blocked',
+    mute:'Mute',
+    unmute:'Unmute',
+    addBlack:'add to blacklist',
+    removeBlack:'Remove blacklist', 
+    kickOut:'Kick out group chat',
+    pull:'Pull people into the group',
+    AddGroupMembers:'Add group members',
+    noGroupMembers:'No group members...'
+  },
+  login:{
+    shopCode:'Merchant ID',
+    pleaseShopCode:'Please enter the business ID',
+    account:'account',
+    pleaseAccount:'Please enter customer service account',
+    password:'password',
+    pleasePassword:'Please enter password',
+    logIn:'log in',
+    remember:'Remember account/password',
+  },
+  transfer:{
+    avatar:'avatar',
+    nickname:'nickname',
+    transferNumber:'number of transfers',
+    transfer:'transfer'
+  }
+}
+  
+  

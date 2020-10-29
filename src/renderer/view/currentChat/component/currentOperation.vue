@@ -1,23 +1,23 @@
 <template>
   <div class="current_operation">
     <div class="info">
-      <p class="title">访问信息</p>
+      <p class="title">{{$t('currentInfo.accessInformation')}}</p>
       <p class="subTitle">
-        IP:
+        {{$t('currentInfo.ip')}}:
       {{currentUser.login_ip}}
       </p>
       <p class="subTitle dwote" :title="currentUser.area">
-        地区：
+        {{$t('currentInfo.area')}}：
       {{ currentUser.area}}
       </p>
     </div>
     <div class="remark info">
-      <p class="title">其他操作</p>
+      <p class="title"> {{$t('currentInfo.otherOperations')}}</p>
       <a-button @click="multitapConversation">
-        <customIcon type="icon-zhuanjie" style="fontSize:16px"></customIcon>转接当前会话
+        <customIcon type="icon-zhuanjie" style="fontSize:16px"></customIcon>{{$t('currentInfo.transferCurrentConversation')}}
       </a-button>
       <a-button @click="closeChat">
-        <a-icon type="close-circle"  />关闭当前会话
+        <a-icon type="close-circle"  />{{$t('currentInfo.closeCurrentSession')}}
       </a-button>
     </div>
   </div>

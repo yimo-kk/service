@@ -26,6 +26,7 @@ var notification;
 const winURL =
   process.env.NODE_ENV === "development"
     ? `http://localhost:9080`
+    // ? `file:///D:/work/my-project/build/service-win32-x64/resources/app/dist/electron/index.html`
     : `file://${__dirname}/index.html`;
 
 // 只能开一个应用 
@@ -45,16 +46,15 @@ function createWindow() {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    backgroundColor: "#fff",
-    useContentSize: true,
+    backgroundColor: "#eee",
+    useContentSize: true, 
     width: 1020,
     height: 563,
     minWidth: 1020,
     minHeight: 563,
     webPreferences: {
       webSecurity: false, // 是否禁用浏览器的跨域安全特性
-      nodeIntegration: true, // 是否完整支持node
-      affinity :'webPreferences'
+      nodeIntegration: true, // 是否完整支持node 
     },
     // resizable: false, //禁止改变主窗口尺寸
     icon: path.join(__static, "./icon.ico"),

@@ -5,13 +5,22 @@ import request from '@/utils/axios.js'
 export function handleLogin(params){
     return request.post('/service/doLogin', params)
 }
-/**
+/** 
  * 获取用户信息
  */
-export function getUserInfo(params){
-    return request.get('/service/getKefuInfo')
+export function getUserInfo(accessToken,refreshToken){
+    return request(
+        {
+           url: '/service/getKefuInfo',
+           headers: {
+            "refresh-token":  accessToken,
+            "access-token":  refreshToken,
+            }, 
+          method: "get",
+        }
+    )
 }
-/**
+/** 
  * 登录状态
  */
 export function updateKefuStatus(code){

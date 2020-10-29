@@ -1,10 +1,12 @@
 <template>
-<div id="app">
-    <router-view v-if="isRouterAlive"></router-view>
-    <audio id="audio" preload="auto" loop>
-        <source src="./assets/voice.mp3" type="audio/mp3" />
-    </audio>
-</div>
+    <a-config-provider :locale="locale">
+        <div id="app">
+            <router-view v-if="isRouterAlive"></router-view>
+            <audio id="audio" preload="auto" loop>
+                <source src="./assets/voice.mp3" type="audio/mp3" />
+            </audio>
+        </div>
+    </a-config-provider>
 </template>
 
 <script>
@@ -22,7 +24,7 @@ export default {
         return {
             ip:'',
             address:'',
-              isRouterAlive: true // 控制视图是否显示的变量
+            isRouterAlive: true, // 控制视图是否显示的变量 
         }
     },
     mounted () {
@@ -36,6 +38,22 @@ export default {
         document.ondragover  = function(event) {
             return false;
         };
+        // 退出程序事件
+        this.$electron.ipcRenderer.on("before_closed",()=>{
+            let {  kefu_code ,seller_code} = this.$route.query
+            try {
+                let info = JSON.parse(localStorage.getItem(seller_code))
+                delete info[kefu_code]
+                localStorage.setItem(seller_code,JSON.stringify(info))
+            } catch (error) {
+                console.log(error)
+            }finally{
+                this.$router.push({name:'Login'})
+                this.$store.commit('SET_USER_INFO','')
+                this.$store.commit('RESETVUEX')
+                this.$electron.ipcRenderer.send('app-exit')
+            }
+        });
     },
     methods: {
         reload () {
@@ -53,5 +71,15 @@ export default {
 #app {
     height: 100%;
     overflow: hidden;
+}
+ .ant-layout-header {
+    height: 55px !important;
+    padding: 0 50px !important;
+    line-height: 55px !important;
+    background: #2a2b2d !important;
+}
+.ant-menu-dark, .ant-menu-dark .ant-menu-sub {
+    color: rgba(255, 255, 255, 0.65);
+    background: #2a2b2d !important;
 }
 </style>

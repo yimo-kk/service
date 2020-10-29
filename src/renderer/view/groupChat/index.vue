@@ -21,7 +21,7 @@
       <a-col :span="centerNum" style="height: 100%">
         <div class="chat_content">
           <a-page-header
-            style="border: 1px solid rgb(235, 237, 240)"
+            style="background:#f5f5f5;border-bottom: .5px solid #efefef"
             :title="activityGroup.activityTitle"
           >
             <template slot="extra">
@@ -38,15 +38,17 @@
           <ChatBox
             :chatLogList="chatLogList"
             @sendMessage="sendMessage"
-            @uploadImage="uploadImage"
-            @stopSpeak="stopSpeak"
+            @uploadImage="uploadImage" 
+            @stopSpeak="stopSpeak" 
             @kickOut="executionKickOut"
             @addBlacklist="addBlacklist"
             @removeblack="sendBlackMessage"
             @removeforbid="sendForbidMessage"
             :logLoading="logLoading"
-            :isHeadImg="true"
+            @uploadFile='uploadFile'
             :isAdmin="isAdmin"
+            :on_file='on_file'
+            :on_voice='on_voice'
           ></ChatBox>
         </div>
       </a-col>
@@ -54,7 +56,7 @@
         <transition name="bounce">
           <div v-show="rightNum">
             <a-tabs type="card" v-model="activtTabs">
-              <a-tab-pane key="1" tab="群组成员">
+              <a-tab-pane key="1" :tab="$t('groupInfo.groupMember')">
                 <div v-show="isGroupList" style="textAlign: center">
                   <a-spin tip />
                 </div>
@@ -90,18 +92,18 @@
                             >
                               {{
                                 `${scope.username}${
-                                  scope.isAdmin ? "(管理员)" : ""
+                                  scope.isAdmin ? $t('groupInfo.admin') : ""
                                 }`
                               }}
                                <customIcon
                               v-if="scope.forbid"
-                              :title="scope.forbid ? '被禁言' : ''"
+                              :title="scope.forbid ? $t('groupInfo.banned') : ''"
                               type="icon-32jinyan"
                               style="fontsize: 12px"
                             ></customIcon>
                               <customIcon
                               v-if="scope.list_id"
-                              :title="scope.list_id ? '被拉黑' : ''"
+                              :title="scope.list_id ?$t('groupInfo.blocked'): ''"
                               type="icon-lahei"
                               style="fontsize: 12px; "
                             ></customIcon>
@@ -113,62 +115,62 @@
                     </div>
                   </div>
                   <p v-else-if="!isGroupList" style="textAlign: center">
-                    暂无群成员...
+                    {{$t('groupInfo.noGroupMembers')}}
                   </p>
                 </div>
                 <a-collapse accordion v-if="isAdmin">
-                  <a-collapse-panel header="其他操作" :key="1">
+                  <a-collapse-panel :header="$t('currentInfo.otherOperations')" :key="1">
                     <div class="other">
                       <div>
                         <a-button @click="disableSendMsg">
                           <customIcon
-                            title="禁言"
+                            :title="$t('groupInfo.mute')"
                             type="icon-32jinyan"
                             style="fontsize: 13px"
                           ></customIcon
-                          >禁言
+                          >{{$t('groupInfo.mute')}}
                         </a-button>
                       </div>
                       <div>
                         <a-button @click="removeforbid">
                           <customIcon
-                            title="解除黑名单"
+                            :title="$t('groupInfo.unmute')"
                             type="icon-yichu"
                             style="fontsize: 13px"
                           ></customIcon
-                          >解除禁言
+                          >{{$t('groupInfo.unmute')}}
                         </a-button>
                       </div>
                       <div>
                         <a-button @click="addBlacks">
                           <customIcon
-                            title="加入黑名单"
+                            :title="$t('groupInfo.addBlack')"
                             type="icon-lahei"
                             style="fontsize: 13px"
                           ></customIcon
-                          >加入黑名单
+                          >{{$t('groupInfo.addBlack')}}
                         </a-button>
                       </div>
                       <div>
                         <a-button @click="removeblack">
                           <customIcon
-                            title="移除黑名单"
+                            :title="$t('groupInfo.removeBlack')"
                             type="icon-yichu"
                             style="fontsize: 13px"
                           ></customIcon
-                          >移除黑名单
+                          > {{$t('groupInfo.removeBlack')}}
                         </a-button>
                       </div>
                       <div v-show="activityGroup.is_invite">
                         <a-button @click="operationGroupUser">
                           <a-icon type="minus-circle" style="fontsize: 16px" />
-                          踢出群聊
+                          {{$t('groupInfo.kickOut')}}
                         </a-button>
                       </div>
                       <div v-show="activityGroup.is_invite">
                         <a-button @click="addGroup">
                           <a-icon type="plus-circle" style="fontsize: 16px" />
-                          拉人进群
+                          {{$t('groupInfo.pull')}}
                         </a-button>
                       </div>
                     </div>
@@ -187,16 +189,16 @@
           height: '100%',
         }"
       >
-        <span slot="description">暂无群聊，请联系商家创建群！</span>
+        <span slot="description">{{$t('noGroup')}}</span>
       </a-empty>
     </div>
     <!-- 拉人进群 -->
     <a-modal
-      title="添加群成员"
+      :title="$t('groupInfo.AddGroupMembers')"
       v-model="isAddGroup"
       @ok="handleAddGroup"
-      okText="确定"
-      cancelText="取消"
+      :okText="$t('determine')"
+      :cancelText="$t('cancel')"
     >
       <addGroupList
         :addGroupList="notGroupList"
@@ -258,6 +260,8 @@ export default {
       selectAddList: [],
       addGroupListUser: [],
       isAdmin: false,
+      on_file: 0,
+      on_voice: 0
     };
   },
   computed: {
@@ -279,12 +283,16 @@ export default {
     userForbid() {
       return this.$store.state.Socket.userForbid;
     },
+    userInfo(){
+      return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
+    }
   },
   watch: {
     groupMessage: {
       handler(newVal) {
         let data = JSON.parse(JSON.stringify(newVal));
         if (data.group_id == this.activityGroup.activityId) {
+          data.type === 3 && (data.message.play = false);
           data.type === 0 &&
             (data.message = conversionFace(data.content || data.message));
           this.chatLogList.push(data);
@@ -300,7 +308,7 @@ export default {
         this.chatLogList.push(data);
         this.getGroupMemberList({
           group_id: this.activityGroup.activityId,
-          seller_code: this.$store.state.Login.userInfo.seller_code,
+          seller_code: this.userInfo.seller_code,
         });
       },
       deep: true,
@@ -312,7 +320,7 @@ export default {
         this.chatLogList.push(data);
         this.getGroupMemberList({
           group_id: this.activityGroup.activityId,
-          seller_code: this.$store.state.Login.userInfo.seller_code,
+          seller_code: this.userInfo.seller_code,
         });
       },
       deep: true,
@@ -325,7 +333,7 @@ export default {
         this.chatLogList.push(data);
         this.getGroupMemberList({
           group_id: this.activityGroup.activityId,
-          seller_code: this.$store.state.Login.userInfo.seller_code,
+          seller_code: this.userInfo.seller_code,
         });
       },
       deep: true,
@@ -337,7 +345,7 @@ export default {
         this.chatLogList.push(data);
         this.getGroupMemberList({
           group_id: this.activityGroup.activityId,
-          seller_code: this.$store.state.Login.userInfo.seller_code,
+          seller_code: this.userInfo.seller_code,
         });
       },
       deep: true,
@@ -352,12 +360,12 @@ export default {
       let my_send = {
         cmd: "user-group",
         message: content,
-        from_id: this.$store.state.Login.userInfo.kefu_id,
-        from_name: this.$store.state.Login.userInfo.kefu_name,
-        from_avatar: this.$store.state.Login.userInfo.kefu_avatar,
+        from_id: this.userInfo.kefu_id,
+        from_name: this.userInfo.kefu_name,
+        from_avatar: this.userInfo.kefu_avatar,
         group_id: this.activityGroup.activityId,
-        seller_code: this.$store.state.Login.userInfo.seller_code,
-        kefu_code: this.$store.state.Login.userInfo.kefu_code,
+        seller_code: this.userInfo.seller_code,
+        kefu_code: this.userInfo.kefu_code,
         state: 1,
         type: type,
         from_ip: this.$store.state.Socket.userIp.ip,
@@ -384,11 +392,11 @@ export default {
     },
     clickMore() {
       if (!this.rightNum) {
-        this.rightNum = 5;
-        this.centerNum = 14;
+        this.rightNum = 6; 
+        this.centerNum = 13;
         this.getGroupMemberList({
           group_id: this.activityGroup.activityId,
-          seller_code: this.$store.state.Login.userInfo.seller_code,
+          seller_code: this.userInfo.seller_code,
         });
       } else {
         this.rightNum = 0;
@@ -405,8 +413,8 @@ export default {
       this.chatLogList = [];
       this.getGroupChatLog({
         group_id: data.group_id,
-        kefu_code: this.$store.state.Login.userInfo.kefu_code,
-        kefu_id: this.$store.state.Login.userInfo.kefu_id,
+        kefu_code: this.userInfo.kefu_code,
+        kefu_id: this.userInfo.kefu_id,
       });
 
       if (this.$store.state.Socket.chatList.length) {
@@ -420,21 +428,25 @@ export default {
       if (this.activtTabs == "1" && this.rightNum) {
         this.getGroupMemberList({
           group_id: this.activityGroup.activityId,
-          seller_code: this.$store.state.Login.userInfo.seller_code,
+          seller_code: this.userInfo.seller_code,
         });
       }
     },
     getGroupChatLog(data) {
-      this.logLoading = true;
+      this.logLoading = true; 
       getGroupChatLog(data)
         .then((result) => {
           this.logLoading = false;
+          this.on_file =result.group.on_file?result.group.on_file:0
+          this.on_voice=result.group.on_voice?result.group.on_voice:0
           this.isAdmin = result.isAdmin;
           this.chatLogList = result.data.map((item) => {
             if (item.type == 0) {
               item.content
                 ? (item.content = conversionFace(item.content))
                 : (item.message = conversionFace(item.message));
+            }else if (item.type == 3) {
+              item.play = false;
             }
             return item;
           });
@@ -494,10 +506,10 @@ export default {
     stopSpeak(arr) {
       this.$socket.emit("message", {
         cmd: "forbid",
-        seller_code: this.$store.state.Login.userInfo.seller_code,
+        seller_code: this.userInfo.seller_code,
         group_id: this.activityGroup.activityId,
         username: arr,
-        from_name: this.$store.state.Login.userInfo.kefu_name,
+        from_name: this.userInfo.kefu_name,
       });
       this.handleGroupUser = [];
       this.checkedList = [];
@@ -535,9 +547,9 @@ export default {
     sendForbidMessage(arr) {
       this.$socket.emit("message", {
         cmd: "removeforbid",
-        seller_code: this.$store.state.Login.userInfo.seller_code,
+        seller_code: this.userInfo.seller_code,
         users: arr,
-        from_name: this.$store.state.Login.userInfo.kefu_name,
+        from_name: this.userInfo.kefu_name,
         group_id: this.activityGroup.activityId,
       });
     },
@@ -564,11 +576,11 @@ export default {
     addBlacklist(data) {
       let params = {
         cmd: "black",
-        oper_kefu_id: this.$store.state.Login.userInfo.kefu_id,
-        seller_code: this.$store.state.Login.userInfo.seller_code,
+        oper_kefu_id: this.userInfo.kefu_id,
+        seller_code: this.userInfo.seller_code,
         group_id: this.activityGroup.activityId,
         users: data,
-        from_name: this.$store.state.Login.userInfo.kefu_name,
+        from_name: this.userInfo.kefu_name,
       };
       this.$socket.emit("message", params);
       this.handleGroupUser = [];
@@ -599,9 +611,9 @@ export default {
     sendBlackMessage(arr) {
       this.$socket.emit("message", {
         cmd: "removeblack",
-        seller_code: this.$store.state.Login.userInfo.seller_code,
+        seller_code: this.userInfo.seller_code,
         users: arr,
-        from_name: this.$store.state.Login.userInfo.kefu_name,
+        from_name: this.userInfo.kefu_name,
         group_id: this.activityGroup.activityId,
       });
     },
@@ -614,14 +626,14 @@ export default {
         this.handleGroupUser = [];
         this.getGroupMemberList({
           group_id: this.activityGroup.activityId,
-          seller_code: this.$store.state.Login.userInfo.seller_code,
+          seller_code: this.userInfo.seller_code,
         });
       });
     },
     getNotGroupUsersList() {
       this.isNotGroupList = true;
       getNotGroupUsersList({
-        seller_code: this.$store.state.Login.userInfo.seller_code,
+        seller_code: this.userInfo.seller_code,
         group_id: this.activityGroup.activityId,
         keywords: "",
       })
@@ -655,8 +667,8 @@ export default {
       });
       pullUsersGroup({
         group_id: this.activityGroup.activityId,
-        kefu_id: this.$store.state.Login.userInfo.kefu_id,
-        seller_code: this.$store.state.Login.userInfo.seller_code,
+        kefu_id: this.userInfo.kefu_id,
+        seller_code: this.userInfo.seller_code,
         users: arr,
       }).then((result) => {
         this.isAddGroup = false;
@@ -664,7 +676,7 @@ export default {
         this.addGroupListUser = [];
         this.getGroupMemberList({
           group_id: this.activityGroup.activityId,
-          seller_code: this.$store.state.Login.userInfo.seller_code,
+          seller_code: this.userInfo.seller_code,
         });
       });
     },
@@ -692,15 +704,17 @@ export default {
     onChangeAddList(vals) {
       this.selectList = this.addGroupList.filter((item) => {
         return vals.includes(item.uid);
-      });
+      }); 
     },
-    updataBlack() {},
+    uploadFile(data, type) {
+      this.sendMessage(data, type);
+    },
   },
   created() {},
   mounted() {
     this.logLoading = true;
-    this.getGroupList({
-      kefu_id: this.$store.state.Login.userInfo.kefu_id,
+      this.getGroupList({
+      kefu_id: this.userInfo.kefu_id,
     })
       .then((result) => {
         if (this.$store.state.Socket.chatList.length) {
@@ -718,8 +732,8 @@ export default {
             this.chatLogList = [];
             this.getGroupChatLog({
               group_id: this.$store.state.Socket.chatList[0].group_id,
-              kefu_id: this.$store.state.Login.userInfo.kefu_id,
-              kefu_code: this.$store.state.Login.userInfo.kefu_code,
+              kefu_id: this.userInfo.kefu_id,
+              kefu_code: this.userInfo.kefu_code,
             });
           } else {
             let arr = JSON.parse(
@@ -734,8 +748,8 @@ export default {
             this.chatLogList = [];
             this.getGroupChatLog({
               group_id: this.activityGroup.activityId,
-              kefu_id: this.$store.state.Login.userInfo.kefu_id,
-              kefu_code: this.$store.state.Login.userInfo.kefu_code,
+              kefu_id: this.userInfo.kefu_id,
+              kefu_code: this.userInfo.kefu_code,
             });
           }
         }
@@ -765,6 +779,7 @@ export default {
 }
 
 .hover_item {
+  padding: 5px;
   &:hover {
     background-color: #ccc;
   }
@@ -779,7 +794,7 @@ export default {
 }
 
 .chat_left {
-  padding: 10px;
+  // padding: 10px;
   height: 100%;
   background-color: #eee;
   overflow: auto;

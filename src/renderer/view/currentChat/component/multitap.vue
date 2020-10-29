@@ -24,7 +24,7 @@
                  <a-badge
                   :status=" data.online_status == 1 ? 'success':data.online_status == 2 ? 'warning':'default'"
                   :offset="[0,25]"
-                  :title="data.online_status == 1 ?'在线':data.online_status == 2 ? '离开':'离线'"
+                  :title="data.online_status == 1 ?$t('online'):data.online_status == 2 ? $t('goAway'):$t('offline')"
                 >
                   <img v-lazy="kefu_avatar" alt style="width:30px;height:30px" />
                 </a-badge>
@@ -39,7 +39,7 @@
                 <p>{{`${data. now_service_num}/${data.max_service_num}`}}</p>
               </div>
               <div slot="operation" slot-scope="operation,data">
-                 <a-button type="link" @click="relink(data)">转接</a-button>
+                 <a-button type="link" @click="relink(data)">{{$t('transfer.transfer')}}</a-button>
               </div>
             </a-table>
           </div>
@@ -57,33 +57,6 @@
 </template>
 
 <script>
-const columns = [
-  {
-    title: "头像",
-    dataIndex: "kefu_avatar",
-    scopedSlots: {
-      customRender: "kefu_avatar",
-    },
-  },
-  {
-    title: "昵称",
-    dataIndex: "kefu_name",
-  },
-  {
-    title: "接待人数",
-    dataIndex: "max_service_num",
-    scopedSlots: {
-      customRender: "max_service_num",
-    },
-  },
-  {
-    title: "操作",
-    dataIndex: "operation",
-    scopedSlots: {
-      customRender: "operation",
-    },
-  },
-];
 export default {
   name: "Multitap",
   components: {},
@@ -105,7 +78,33 @@ export default {
   },
   data() {
     return {
-      columns,
+      columns:[
+        {
+          title: this.$t('transfer.avatar'),
+          dataIndex: "kefu_avatar",
+          scopedSlots: {
+            customRender: "kefu_avatar",
+          },
+        },
+        {
+          title:this.$t('transfer.nickname'),
+          dataIndex: "kefu_name",
+        },
+        {
+          title: this.$t('transfer.transferNumber'),
+          dataIndex: "max_service_num",
+          scopedSlots: {
+            customRender: "max_service_num",
+          },
+        },
+        {
+          title:this.$t('awaitInfo.operating') ,
+          dataIndex: "operation",
+          scopedSlots: {
+            customRender: "operation",
+          },
+        },
+      ],
     };
   },
   computed: {},
@@ -119,10 +118,10 @@ export default {
     relink(data){
       let that = this
         this.$confirm({
-        title: "转接",
+        title: this.$t('transfer.transfer'),
         content: `${data.online_status == 2 ?'当前客服处于离开状态，':''}您确定将${this.groupTitle}转接给${data.kefu_name}吗？`,
-        okText: "确认",
-        cancelText: "取消",
+        okText:  this.$t('determine'),
+        cancelText:this.$t('cancel'),
         onOk() {
           that.$emit("confirm", data);
           that.isMultitap = false;

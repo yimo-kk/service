@@ -1,9 +1,9 @@
 <template>
   <div class="await_list">
-    <a-divider orientation="left">待接待用户列表</a-divider>
+    <a-divider orientation="left">{{$t('awaitInfo.title')}}</a-divider>
     <div class="handle">
       <div class="search">
-        <a-input-search placeholder="请输入用户名" allowClear enter-button @search="onSearch" />
+        <a-input-search :placeholder="$t('awaitInfo.search')" allowClear enter-button @search="onSearch" />
       </div>
     </div>
     <div class="tabl_list">
@@ -20,9 +20,9 @@
         <p slot="customer_avatar" slot-scope="scope">
           <a-avatar :src="scope" />
         </p>
-        <p slot="is_tourist" slot-scope="num">{{num == 0 ? '游客访问':'用户'}}</p>
+        <p slot="is_tourist" slot-scope="num">{{num == 0 ? $t('awaitInfo.tableTitle.Tourist'):$t('awaitInfo.tableTitle.user')}}</p>
         <div slot="uid" slot-scope="customer_id,data">
-          <a-button type="primary" size="small" @click="reception(data)">接待</a-button>
+          <a-button type="primary" size="small" @click="reception(data)">{{$t('awaitInfo.tableTitle.reception')}}</a-button>
         </div>
       </a-table>
     </div>
@@ -32,51 +32,6 @@
 <script>
 import { getCustomerQueue, reception } from "@/api/await.js";
 import { mapMutations, mapActions } from "vuex";
-const columns = [
-  {
-    title: "访客头像",
-    dataIndex: "customer_avatar",
-    scopedSlots: {
-      customRender: "customer_avatar",
-    },
-    align: "center",
-  },
-  {
-    title: "访客名称",
-    dataIndex: "customer_name",
-    ellipsis: true,
-    align: "center",
-  },
-  {
-    title: "访客ip",
-    dataIndex: "customer_ip",
-    ellipsis: true,
-    align: "center",
-  },
-  {
-    title: "访问时间",
-    dataIndex: "create_time",
-    ellipsis: true,
-    align: "center",
-  },
-  {
-    title: "访客类型",
-    dataIndex: "is_tourist",
-    ellipsis: true,
-    scopedSlots: {
-      customRender: "is_tourist",
-    },
-    align: "center",
-  },
-  {
-    title: "操作",
-    dataIndex: "customer",
-    scopedSlots: {
-      customRender: "uid",
-    },
-    align: "center",
-  },
-];
 export default {
   name: "AwaitChat",
   components: {},
@@ -84,13 +39,60 @@ export default {
     return {
       pagination: {},
       loading: false,
-      columns,
+      columns:[
+            {
+              title: this.$t('awaitInfo.tableTitle.visitorAvatar'),
+              dataIndex: "customer_avatar",
+              scopedSlots: {
+                customRender: "customer_avatar",
+              },
+              align: "center",
+            },
+            {
+              title: this.$t('awaitInfo.tableTitle.visitorName'),
+              dataIndex: "customer_name",
+              ellipsis: true,
+              align: "center",
+            },
+            {
+              title:this.$t('awaitInfo.tableTitle.visitorIp'),
+              dataIndex: "customer_ip",
+              ellipsis: true,
+              align: "center",
+            },
+            {
+              title: this.$t('awaitInfo.tableTitle.interviewTime'),
+              dataIndex: "create_time",
+              ellipsis: true,
+              align: "center",
+            },
+            {
+              title:  this.$t('awaitInfo.tableTitle.visitorType'),
+              dataIndex: "is_tourist",
+              ellipsis: true,
+              scopedSlots: {
+                customRender: "is_tourist",
+              },
+              align: "center",
+            },
+            {
+              title: this.$t('awaitInfo.tableTitle.operating'),
+              dataIndex: "customer",
+              scopedSlots: {
+                customRender: "uid",
+              },
+              align: "center",
+            },
+          ]
     };
   },
   computed: {
-      awaitList() {
+    awaitList() {
       return this.$store.state.Socket.awaitList;
     },
+      userInfo(){
+      return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
+    }
   },
   watch: {},
   sockets: {}, 
@@ -110,22 +112,22 @@ export default {
       let that = this;
       this.$confirm({
         content: `确定接待${data.customer_name}吗？`,
-        okText: "确认",
-        cancelText: "取消",
+        okText: this.$t('determine'),
+        cancelText: this.$t('cancel'),
         onOk() {
           let params = {
-            kefu_code: that.$store.state.Login.userInfo.kefu_code,
-            kefu_name: that.$store.state.Login.userInfo.kefu_name,
-            seller_code: that.$store.state.Login.userInfo.seller_code,
+            kefu_code: that.userInfo.kefu_code,
+            kefu_name: that.userInfo.kefu_name,
+            seller_code: that.userInfo.seller_code,
             uid: data.customer_id,
           };
           reception(params).then((result) => {
             let socketMessage = {
               username: data.customer_name,
-              kefu_code: that.$store.state.Login.userInfo.kefu_code,
+              kefu_code: that.userInfo.kefu_code,
               uid:data.customer_id,
-              seller_code:that.$store.state.Login.userInfo.seller_code,
-              kefu_name: that.$store.state.Login.userInfo.kefu_name,
+              seller_code:that.userInfo.seller_code,
+              kefu_name: that.userInfo.kefu_name,
               cmd: "service-prompt",
             };
             that.$socket.emit("message", socketMessage);
@@ -144,26 +146,10 @@ export default {
     },
     onSearch(val) { 
       this.getAwaitList({
-        seller_code: this.$store.state.Login.userInfo.seller_code,
+        seller_code: JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code].seller_code,
         username: val,
       });
     },
-
-    // getAwaitListData(data) {
-    //   this.loading = true;
-    //   this.getAwaitList(data)
-    //     .then((result) => {
-    //       this.loading = false;
-    //       const pagination = {
-    //         ...this.pagination, 
-    //       };
-    //       pagination.total = result.data.length;
-    //       this.pagination = pagination;
-    //     })
-    //     .catch((err) => {
-    //       this.loading = false;
-    //     });
-    // },
     // 分页
     handleTableChange(pagination) {
       const pager = {
@@ -171,17 +157,9 @@ export default {
       };
       pager.current = pagination.current;
       this.pagination = pager;
-      // this.getAwaitList({
-      //   seller_code: this.$store.state.Login.userInfo.seller_code,
-      //   username: "",
-      // });
     },
   },
   mounted() {
-    // this.getAwaitList({
-    //   seller_code: this.$store.state.Login.userInfo.seller_code,
-    //   username: "",
-    // });
   },
 };
 </script>

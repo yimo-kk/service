@@ -1,62 +1,71 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import store from '../store'
-import routers from './router'
+import Vue from "vue";
+import Router from "vue-router";
+import store from "../store";
+import routers from "./router";
 // socket
 import SocketIO from "socket.io-client";
 import VueSocketIO from "vue-socket.io";
-Vue.use(Router)
-const originalPush = Router.prototype.push
-Router.prototype.push = function push (location, onResolve, onReject) {
-  if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject)
-  return originalPush.call(this, location).catch(err => err)
-}
-const router =  new Router({
-  routes: routers
-})
-router.beforeEach((to, from, next) => {  
-  let token = localStorage.getItem('accessToken')
-    store.commit('SET_CURRENT_PAGE', to.name)
-  if (!token && to.name !== 'Login') {
+Vue.use(Router);
+const originalPush = Router.prototype.push;
+Router.prototype.push = function push(location, onResolve, onReject) {
+  if (onResolve || onReject)
+    return originalPush.call(this, location, onResolve, onReject);
+  return originalPush.call(this, location).catch((err) => err);
+};
+const router = new Router({
+  routes: routers,
+});
+router.beforeEach((to, from, next) => {
+  let token;
+  let { kefu_code, seller_code } = to.query;
+  if (
+    localStorage.getItem(seller_code) &&
+    JSON.parse(localStorage.getItem(seller_code))[kefu_code]
+  ) {
+    token = JSON.parse(localStorage.getItem(seller_code))[kefu_code][
+      "accessToken"
+    ];
+  }
+
+  store.commit("SET_CURRENT_PAGE", to.name);
+  if (!token && to.name !== "Login") {
     // 未登录且要跳转的页面不是登录页
     next({
-      name: 'Login' // 跳转到登录页
-    })
-  } else if (!token && to.name === 'Login') {
+      name: "Login", // 跳转到登录页
+    });
+  } else if (!token && to.name === "Login") {
     // 未登陆且要跳转的页面是登录页
-    next() // 跳转
-  } 
-   if( to.name === 'Login'){
-    store.commit('RESETVUEX')
-    store.commit('SET_USER_INFO','')
-    next() // 跳转
+    next(); // 跳转
   }
-  
-if(localStorage.getItem('userInfo')){
-  let userInfo = JSON.parse(localStorage.getItem('userInfo'))
-  Vue.use(
-    new VueSocketIO({
-      debug: true,
-      connection: SocketIO.connect(`wss://server.nikidigital.net`, {
-        path: `/socket.io/?username=${userInfo.kefu_code}&code=${userInfo.seller_code}&`,
-        transports: ["websocket"],
-        // reconnection:true,
-        // reconnectionAttempts:100,
-        // reconnectionDelay :1000,
-        // reconnectionDelayMax :5000,
-      }),
-      vuex: {
-        store,
-        mutationPrefix: "SOCKET_",
-        actionPrefix: "SOCKET_"
-      }
-    })
-  );
-} 
+  if (to.name === "Login") {
+    store.commit("RESETVUEX");
+    store.commit("SET_USER_INFO", "");
+    next(); // 跳转
+  }
 
- next()
-})
+  if ((seller_code, kefu_code)) {
+    // let userInfo = JSON.parse(localStorage.getItem('userInfo'))
+    Vue.use(
+      new VueSocketIO({
+        debug: true,
+        connection: SocketIO.connect(`wss://server.nikidigital.net`, {
+          path: `/socket.io/?username=${kefu_code}&code=${seller_code}&`,
+          transports: ["websocket"],
+          // reconnection:true,
+          // reconnectionAttempts:100,
+          // reconnectionDelay :1000,
+          // reconnectionDelayMax :5000,
+        }),
+        vuex: {
+          store,
+          mutationPrefix: "SOCKET_",
+          actionPrefix: "SOCKET_",
+        },
+      })
+    );
+  }
 
+  next();
+});
 
-
-export default router
+export default router;

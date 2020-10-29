@@ -1,9 +1,11 @@
 
+import zhCN from 'ant-design-vue/lib/locale-provider/zh_CN'
 const path = require('path')
 export default function() {
   return {
     data() {
       return {
+        locale: zhCN,
         isPlaying: false
       };
     },
@@ -42,7 +44,15 @@ export default function() {
         myNotification.onclick = () => {
             this.$electron.ipcRenderer.send("message_notification_click", );
         };
+      },
+      setLocale(){
+        this.locale = zhCN
+        
+      }
     },
+    watch: {
+      locale(newVal){
+      }
     }
   };
 }

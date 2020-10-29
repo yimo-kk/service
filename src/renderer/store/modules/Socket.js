@@ -14,7 +14,7 @@ const state = {
     },
     activityGroup: {
         activityId: null,
-        activityTitle: "",
+        activityTitle: "", 
         is_invite:1
     },
     userMessage: {}, // 客服收到用户消息
@@ -54,10 +54,12 @@ const mutations = {
     },
     // disconnect:检测socket断开连接
     SOCKET_disconnect: (data) => {
+        // console.log('断开')
     },
     // reconnect:重新连接socket事件
     SOCKET_reconnect: (data) => {
-        
+        // console.log('重连')
+         
     },
     SOCKET_delKefu: (state,data) => {
         Toast( { icon: 'close',
@@ -153,6 +155,15 @@ const mutations = {
     SET_CURRENT_CHAT_LIST(state, data){
         state.currentChatList = data
     },
+    SET_CURRENT_CHAT_LIST_PUSH(state, data){
+        state.currentUser= {
+            activtyUid: data.uid,
+            activtyeUsername: data.username,
+            login_ip:data.login_ip, 
+            area:data.area
+        },
+        state.currentChatList.push(data)
+    },
     SET_USER_IP(state, data){
         state.userIp = data
     },
@@ -166,8 +177,8 @@ const mutations = {
         state.activityGroup.is_invite=1
         state.userMessage= {} // 客服收到用户消息
         state.relinkMessage= {} // 客服收到转接消息
-        state. refuseMessage= {} // 转接是否被接受
-        state.groupMessage= {} // 接受群聊消息
+        state.refuseMessage= {} // 转接是否被接受
+        state.groupMessage= {} // 接受群聊消息 
         state.chatList= []//群列表
         state.awaitList=[] // 等待接入
         state.currentChatList=[]// 正在聊天列表
@@ -175,12 +186,9 @@ const mutations = {
         state.groupBlack={}//全局拉黑提示
         state.userBlack={}//个人拉黑提示
         state.groupForbid={} //禁言全局
-        state. userForbid={} //禁言个人
-        state.kefuStatus={}
+        state.userForbid={} //禁言个人 
+        state.kefuStatus={}   
         state.oldUser={}//上次接待的人
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
-        localStorage.removeItem('userInfo')
     }, 
 } 
 const actions = {
@@ -188,10 +196,6 @@ const actions = {
     getGroupList({ commit },data) {
         return new Promise(async (resolve, reject) => {
             getGroupList(data).then((result) => {
-                    // let chatList = result.data.map((item) => {
-                    //     item.badgeShow = 0;
-                    //     return item;
-                    // });
                     commit('SET_CHAT_LIST',  result.data)
                     resolve( result.data);
                 })

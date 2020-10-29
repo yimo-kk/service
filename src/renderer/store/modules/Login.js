@@ -1,19 +1,14 @@
 
   import {handleLogin,getUserInfo} from '@/api/login.js'
   const state = {
-    userInfo: JSON.parse(localStorage.getItem('userInfo'))?JSON.parse(localStorage.getItem('userInfo')):{}
+    userInfo: {}
   }
   const mutations = {
     SET_USER_INFO(state,val){
-      if(val){
-        state.userInfo = val
-        localStorage.setItem('userInfo',JSON.stringify(val))
-      }else {
-        localStorage.removeItem('userInfo')
-      }
+      state.userInfo = val
     },
   }
-  const actions = {
+  const actions = { 
      // 登录
      handleLogin({ state, commit }, data) {
         return new Promise(async (resolve, reject) => {
@@ -27,11 +22,11 @@
         });
       },
       // 获取用户信息
-     getUserInfo({ state, commit }) {
+     getUserInfo({ state, commit },{accessToken,refreshToken}) {
       return new Promise(async (resolve, reject) => {
-        await getUserInfo()
+        await getUserInfo(accessToken,refreshToken)
           .then(result => {
-            commit('SET_USER_INFO',result.data)
+            // commit('SET_USER_INFO',result.data)
             resolve(result);
           })
           .catch(err => {

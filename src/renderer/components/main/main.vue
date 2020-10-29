@@ -4,17 +4,18 @@
     <a-layout-header class="header">
       <div class="header">
         <a-menu
+
           theme="dark"
           mode="horizontal"
           :default-selected-keys="['AwaitChat']"
-          :style="{ lineHeight: '64px' }"
+          :style="{ lineHeight: '55px' }"
           :selectedKeys="[selectedKey]"
           @select="selectMenu"
         >
           <a-menu-item key="CurrentChat">
             <div class="flex_center">
               <customIcon type="icon-liaotian" style="color:#fff;fontSize:18px"></customIcon>
-              <p>当前会话</p>
+              <p>{{$t('topTitle.currentChat')}} </p>
               <a-badge :count="$store.getters.currentNum" :overflow-count="99"  :offset="[0,-18]" >
               </a-badge>
             </div>
@@ -22,7 +23,7 @@
           <a-menu-item key="AwaitChat">
             <div class="flex_center">
                 <customIcon type="icon-dengdai" style="color:#fff;fontSize:18px"></customIcon>
-                <p>待接入会话</p> 
+                <p>{{$t('topTitle.awaitChat')}}</p> 
                 <a-badge :count="awaitList.length" :overflow-count="99"  :offset="[0,-18]" >
               </a-badge>
             </div>
@@ -30,7 +31,7 @@
           <a-menu-item key="GroupChat">
             <div class="flex_center">
               <customIcon type="icon--qunliaoshezhi" style="color:#fff;fontSize:18px"></customIcon>
-              <p>群聊管理</p>
+              <p>{{$t('topTitle.groupChat')}}</p>
               <a-badge :count="$store.getters.groupChatNum" :overflow-count="99"  :offset="[0,-10]" > </a-badge>
             </div>
           </a-menu-item>
@@ -58,7 +59,6 @@ import serviceHeader from "@/components/serviceHeader/serviceHeader.vue";
 import AwaitChat from "@/view/awaitChat/index";
 import CurrentChat from "@/view/currentChat/index";
 import GroupChat from "@/view/groupChat/index";
-// import HeaderTop from "./headerTop";
 import { updateKefuStatus } from "@/api/login";
 import common from "@/mixins/common";
 import { handleRelink } from "@/api/current.js";
@@ -105,13 +105,26 @@ export default {
     },
     chatList(){
       return this.$store.state.Socket.chatList;
+    },
+    userInfo(){
+      return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
     }
 
     
   },
+   sockets: {
+    // connect:查看socket是否渲染成功
+    connect() {},
+    // disconnect:检测socket断开连接
+    disconnect(data) {
+    },
+    reconnect(data) {
+      this.setStatus(1)
+    }, 
+   },
   watch: {
     chatList:{
-      handler(newVal){
+      handler(newVal){  
         newVal.length===0 &&  this.SET_ACTIVITY_GROUP({
             activityId: null,
             activityTitle: "",
@@ -130,18 +143,17 @@ export default {
     // 收到转接
     relinkMessage: {
       handler(newVal) {
-        console.log(newVal,222)
         let val = JSON.parse(JSON.stringify(newVal));
-        if (val.kefu_code == this.$store.state.Login.userInfo.kefu_code) {
+        if (val.kefu_code == this.userInfo.kefu_code) {
           this.play();
           this.$electron.ipcRenderer.send("message_prompt");
           this.$electron.ipcRenderer.send("isVisible_box", val.message);
           let that = this;
           this.$confirm({
-            title: "转接通知",
+            title: this.$t('notification'),
             content: val.message,
-            okText: "确认",
-            cancelText: "拒绝",
+            okText: this.$t('determine'),
+            cancelText: this.$t('refuse'),
             onOk() {
               that.$socket.emit("message", { 
                 username: val.user_name,
@@ -152,16 +164,16 @@ export default {
               });
               that.$socket.emit("message", {
                 username: val.user_name,
-                kefu_code: that.$store.state.Login.userInfo.kefu_code,
-                kefu_name: that.$store.state.Login.userInfo.kefu_name,
+                kefu_code: that.userInfo.kefu_code,
+                kefu_name: that.userInfo.kefu_name,
                 uid:val.user_id,
-                seller_code:that.$store.state.Login.userInfo.seller_code,
+                seller_code:that.userInfo.seller_code,
                 cmd: "service-prompt",
               });
               that.handleRelink({
-                seller_code: that.$store.state.Login.userInfo.seller_code,
+                seller_code: that.userInfo.seller_code,
                 uid: val.user_id,
-                kefu_code: that.$store.state.Login.userInfo.kefu_code,
+                kefu_code: that.userInfo.kefu_code,
                 from_kefu_code: val.from_kefu_code,
               });
               that.selectedKey = "CurrentChat";
@@ -170,8 +182,8 @@ export default {
               that.$socket.emit("message", {
                 username: val.user_name,
                 from_kefu_code: val.from_kefu_code,
-                kefu_name: that.$store.state.Login.userInfo.kefu_name,
-                kefu_code: that.$store.state.Login.userInfo.kefu_code,
+                kefu_name: that.userInfo.kefu_name,
+                kefu_code: that.userInfo.kefu_code,
                 cmd: "relink-refuse",
               });
             },
@@ -185,7 +197,7 @@ export default {
       handler(newVal) {
         let data = JSON.parse(JSON.stringify(newVal));
         // 消息声音提示和任务栏闪烁
-        if (data.from_name !== this.$store.state.Login.userInfo.kefu_name) {
+        if (data.from_name !== this.userInfo.kefu_name) {
           this.play();
           this.$electron.ipcRenderer.send("message_prompt");
           this.$electron.ipcRenderer.send("message_tray");
@@ -210,7 +222,7 @@ export default {
     groupMessage: {
       handler(newVal) {
         let data = JSON.parse(JSON.stringify(newVal));
-        if (data.from_name !== this.$store.state.Login.userInfo.kefu_name) {
+        if (data.from_name !== this.userInfo.kefu_name) {
           this.play();
           this.$electron.ipcRenderer.send("message_prompt");
           this.$electron.ipcRenderer.send("message_tray");
@@ -235,24 +247,25 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["getGroupList",'getAwaitList','getCurrentListData']),
-    ...mapMutations(["SET_CHAT_LIST","SET_CURRENT_USER",'SET_CURRENT_CHAT_LIST','SET_GROUP_CHAT_NUM','SET_STATUS','SET_ACTIVITY_GROUP']),
+    ...mapActions(["getGroupList",'getAwaitList']),
+    ...mapMutations(["SET_CHAT_LIST","SET_CURRENT_USER",'SET_CURRENT_CHAT_LIST','SET_CURRENT_CHAT_LIST_PUSH','SET_GROUP_CHAT_NUM','SET_STATUS','SET_ACTIVITY_GROUP']),
     selectMenu(val) {
       this.selectedKey = val.key;
     },
     handleRelink(data) {
       handleRelink(data).then((result) => {
+        this.SET_CURRENT_CHAT_LIST_PUSH(result.data)
         this.$message.success("转接成功");
       });
     },
     updateKefuStatus() {
-      updateKefuStatus(this.$store.state.Login.userInfo.kefu_code).then(
+      updateKefuStatus(this.userInfo.kefu_code).then(
         (result) => {
           this.SET_STATUS({online_status:1})
           this.$socket.emit("message",
             {
               cmd: "service-status",
-              kefu_code:this.$store.state.Login.userInfo.kefu_code,
+              kefu_code:this.userInfo.kefu_code,
               online_status:1,
               });
         }
@@ -266,21 +279,11 @@ export default {
       });
       return list;
     },
-    // getCurrentUserListData(){
-    //   this.getCurrentListData() 
-    //   .then((result) => {
-    //      this.SET_CURRENT_USER({
-    //           activtyUid: this.currentChatList[0].uid,
-    //           activtyeUsername: this.currentChatList[0].username,
-    //           login_ip:this.currentChatList[0].login_ip, 
-    //           area:this.currentChatList[0].area
-    //         });
-    //   })
-    // },
+   
     setStatus(index){
       this.$socket.emit("message", {
           cmd: "service-status",
-          kefu_code:this.$store.state.Login.userInfo.kefu_code,
+          kefu_code:this.userInfo.kefu_code,
           online_status:index,
       });
     }
@@ -288,22 +291,13 @@ export default {
   created() {},
   mounted() {
     this.updateKefuStatus();
-    this.getGroupList({ kefu_id:this.$store.state.Login.userInfo.kefu_id});
-    // this.getCurrentUserListData()
+    this.getGroupList({ kefu_id:this.userInfo.kefu_id});
     // 等待接入
      this.getAwaitList({
-      seller_code: this.$store.state.Login.userInfo.seller_code,
+      seller_code: this.userInfo.seller_code,
       username: "",
     });
-    this.$electron.ipcRenderer.on("before_closed",()=>{
-        this.$router.push({name:'Login'})
-        this.$store.commit('SET_USER_INFO','')
-        this.$store.commit('RESETVUEX')
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
-        localStorage.removeItem('userInfo')
-        this.$electron.ipcRenderer.send('app-exit')
-    });
+   
   },
 };
 </script>
@@ -331,4 +325,5 @@ export default {
   width: 10px;
   height: 10px;
 }
+
 </style>
