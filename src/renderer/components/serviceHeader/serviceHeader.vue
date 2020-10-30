@@ -43,6 +43,7 @@
 </template>
 
 <script>
+const { remote } = require('electron')
 import common from "@/mixins/common";
 import moment from 'moment'
 import 'moment/locale/zh-cn'
@@ -78,27 +79,34 @@ export default {
         okText: this.$t('determine'),
         cancelText: this.$t('cancel'),
         onOk() {
+          that.$emit('setStatus',0)
           that.$router.push({
             name: "Login",
           });
           that.RESETVUEX()
+          // remote.getCurrentWindow().setSize(600, 563)
+          // that.$electron.ipcRenderer.send('browser_center')
         },
         onCancel() {},
       });
     },
     refresh(){
-      location. reload()
-      // this.reload()
+      this.reload()
+      // location. reload()
     },
     setStatus(index){
+      if(this.kefuStatus== index) return
       let that = this
        this.$confirm({
         title: this.$t('prompt'),
-        content: `确认修改为${index == 1 ?'在线':index == 2 ? '离开':'离线'}状态？`,
+        content: `${this.$t('update')} ${index == 1 ?this.$t('online'):index == 2 ? this.$t('goAway'):this.$t('offline')} ${this.$t('status')} `,
        okText: this.$t('determine'),
         cancelText: this.$t('cancel'),
          onOk() {
            that.$emit('setStatus',index)
+           if(index===1){
+             that.refresh()
+           }
          } 
       });
     },

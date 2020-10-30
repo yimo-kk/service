@@ -48,11 +48,7 @@ instance.interceptors.request.use(config => {
 })
 instance.interceptors.response.use(
   response => {
-    if ( response.data.code === 0 || response.data.code === 1) {
       return response.data
-    }
-    Message.warn(response.data.msg || response.statusText)
-    return Promise.reject(response.data)
   },
   error => {
     if (error.response) {

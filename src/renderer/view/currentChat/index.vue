@@ -362,7 +362,7 @@ export default {
           }
         this.$confirm({    
            title: this.$t('prompt'),
-          content: `您确定关闭与${userNmae}的会话吗？`,
+          content: `${this.$t('confirmCancel') }${userNmae} ${this.$t('conversation')}`,
           okText: this.$t('determine'),
           cancelText: this.$t('cancel'),
           onOk() {

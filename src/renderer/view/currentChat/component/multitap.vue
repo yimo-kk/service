@@ -20,6 +20,9 @@
               :rowKey="(row,index)=>{return index}"
               :data-source="item.kefu"
             >
+              <template v-for="(item, index) in columns" :slot="item.slotName">
+                <span :key="index">{{ $t(item.slotName) }}</span>
+              </template>
               <div slot="kefu_avatar" slot-scope="kefu_avatar,data">
                  <a-badge
                   :status=" data.online_status == 1 ? 'success':data.online_status == 2 ? 'warning':'default'"
@@ -80,28 +83,34 @@ export default {
     return {
       columns:[
         {
-          title: this.$t('transfer.avatar'),
+          slotName: 'transfer.avatar',
           dataIndex: "kefu_avatar",
           scopedSlots: {
             customRender: "kefu_avatar",
+            title:'transfer.avatar'
           },
         },
         {
-          title:this.$t('transfer.nickname'),
+          slotName: 'transfer.nickname',
           dataIndex: "kefu_name",
+          scopedSlots: {
+            title:'transfer.nickname'
+          },
         },
         {
-          title: this.$t('transfer.transferNumber'),
+          slotName: 'transfer.transferNumber',
           dataIndex: "max_service_num",
           scopedSlots: {
             customRender: "max_service_num",
+            title:'transfer.transferNumber'
           },
         },
         {
-          title:this.$t('awaitInfo.operating') ,
+          slotName: 'awaitInfo.tableTitle.operating',
           dataIndex: "operation",
           scopedSlots: {
             customRender: "operation",
+             title:'awaitInfo.tableTitle.operating'
           },
         },
       ],
@@ -110,16 +119,13 @@ export default {
   computed: {},
   watch: {},
   methods: {
-    // confirm(val) {
-    //   this.$emit("confirm", val);
-    //   this.isMultitap = false;
-    // },
     callback(){},
     relink(data){
       let that = this
         this.$confirm({
         title: this.$t('transfer.transfer'),
-        content: `${data.online_status == 2 ?'当前客服处于离开状态，':''}您确定将${this.groupTitle}转接给${data.kefu_name}吗？`,
+        content:`${data.online_status == 2 ? this.$t('transferState.noSservice'):'' }`+
+       this.$t('transferState.confirm') + `  ${this.groupTitle}  `+ this.$t('transferState.to')+`   ${ data.kefu_name }` +  this.$t('transferState.question'),
         okText:  this.$t('determine'),
         cancelText:this.$t('cancel'),
         onOk() {

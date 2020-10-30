@@ -61,7 +61,14 @@ const mutations = {
         // console.log('重连')
          
     },
+    // 客服被删除
     SOCKET_delKefu: (state,data) => {
+        Toast( { icon: 'close',
+        content: data.message})
+        router.push({name:'Login'})
+    },
+    // 被挤下线
+    SOCKET_forced:(state, data) => {
         Toast( { icon: 'close',
         content: data.message})
         router.push({name:'Login'})

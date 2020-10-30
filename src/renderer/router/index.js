@@ -42,19 +42,19 @@ router.beforeEach((to, from, next) => {
     store.commit("SET_USER_INFO", "");
     next(); // 跳转
   }
-
-  if ((seller_code, kefu_code)) {
-    // let userInfo = JSON.parse(localStorage.getItem('userInfo'))
+  let path
+  if (seller_code && kefu_code) {
+    path = `/socket.io/?username=${kefu_code}&code=${seller_code}&`
+  }else {
+    path =  `/socket.io/?username=loginauth&`
+  }
+  // if (seller_code && kefu_code) {
     Vue.use(
       new VueSocketIO({
         debug: true,
         connection: SocketIO.connect(`wss://server.nikidigital.net`, {
-          path: `/socket.io/?username=${kefu_code}&code=${seller_code}&`,
+          path:path,
           transports: ["websocket"],
-          // reconnection:true,
-          // reconnectionAttempts:100,
-          // reconnectionDelay :1000,
-          // reconnectionDelayMax :5000,
         }),
         vuex: {
           store,
@@ -63,7 +63,7 @@ router.beforeEach((to, from, next) => {
         },
       })
     );
-  }
+  // }
 
   next();
 });

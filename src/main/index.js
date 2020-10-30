@@ -46,7 +46,7 @@ function createWindow() {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    backgroundColor: "#eee",
+    backgroundColor: "#ccc",
     useContentSize: true, 
     width: 1020,
     height: 563,
@@ -56,7 +56,6 @@ function createWindow() {
       webSecurity: false, // 是否禁用浏览器的跨域安全特性
       nodeIntegration: true, // 是否完整支持node 
     },
-    // resizable: false, //禁止改变主窗口尺寸
     icon: path.join(__static, "./icon.ico"),
     show: false, // 先隐藏
     // frame:false
@@ -69,6 +68,10 @@ function createWindow() {
     mainWindow = null;
   });
   mainWindow.setMenu(null);
+  mainWindow.on("close", (event) => {
+    event.preventDefault();
+    mainWindow.webContents.send("before_closed");
+  });
   // 任务栏的闪烁
   ipcMain.on("message_prompt", () => {
     if (!mainWindow.isFocused()) {
@@ -82,7 +85,7 @@ function createWindow() {
       // 通知的副标题, 显示在标题下面 macOS
       subtitle: "",
       // 通知的正文文本, 将显示在标题或副标题下面
-      body: data,
+      body: data.msg,
       // false有声音，true没声音
       silent: true,
       icon: path.join(__static, "./logo.png"),
@@ -93,13 +96,16 @@ function createWindow() {
     }
     notification.on("click", () => {
       mainWindow.show();
+      mainWindow.webContents.send("show_tab",data.tab);
     });
   });
   ipcMain.on("app-exit", () => {
     // 所有窗口都将立即被关闭，而不询问用户，而且 before-quit 和 will-quit 事件也不会被触发。
     app.exit();
   });
-
+  // ipcMain.on("browser_center", () => {
+  //   mainWindow.center()
+  // });
 }
 // 设置托盘
 function implementSystemTray() {
@@ -156,7 +162,6 @@ function implementSystemTray() {
     appTray.popUpContextMenu(trayContextMenu);
   });
 }
-
 app.on("ready", async () => {
   // 创建渲染窗口
   createWindow();
@@ -164,10 +169,6 @@ app.on("ready", async () => {
   // 设置快捷键
   globalShortcut.register("Ctrl+Alt+Z", function() {
     mainWindow.show();
-  });
-  mainWindow.on("close", (event) => {
-    event.preventDefault();
-    mainWindow.webContents.send("before_closed");
   });
 });
 app.on("window-all-closed", (event) => {

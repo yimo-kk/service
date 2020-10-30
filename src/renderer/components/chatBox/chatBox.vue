@@ -351,7 +351,7 @@ export default {
     },
     sendText(newVal){
        if (newVal.length >= 128) {
-          this.sendText = newVal.slice(0, 10);
+          this.sendText = newVal.slice(0, 128);
         }
     },
     logLoading(val) {

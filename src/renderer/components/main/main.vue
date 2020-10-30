@@ -147,7 +147,10 @@ export default {
         if (val.kefu_code == this.userInfo.kefu_code) {
           this.play();
           this.$electron.ipcRenderer.send("message_prompt");
-          this.$electron.ipcRenderer.send("isVisible_box", val.message);
+          this.$electron.ipcRenderer.send("isVisible_box", {
+            msg:val.message,
+            tab:'CurrentChat'
+          });
           let that = this;
           this.$confirm({
             title: this.$t('notification'),
@@ -203,7 +206,11 @@ export default {
           this.$electron.ipcRenderer.send("message_tray");
           this.$electron.ipcRenderer.send(
             "isVisible_box",
-            `${data.from_name}给你发了新消息了`
+            {
+              msg: `${data.from_name}给你发了新消息了`,
+              tab:'CurrentChat'
+
+            }
           );
           if(this.selectedKey !='CurrentChat' || this.$store.state.Socket.currentUser.activtyeUsername != newVal.from_name){
               let arr = JSON.parse(JSON.stringify(this.currentChatList))
@@ -228,7 +235,10 @@ export default {
           this.$electron.ipcRenderer.send("message_tray");
           this.$electron.ipcRenderer.send(
             "isVisible_box",
-            `收到一条新的群消息！`
+          {
+            msg:  `收到一条新的群消息！`,
+            tab:'GroupChat'
+          }
           );
         }
         if (this.$store.state.Socket.chatList.length && (this.selectedKey !='GroupChat' || this.$store.state.Socket.activityGroup.activityId != newVal.group_id)) {
@@ -297,7 +307,9 @@ export default {
       seller_code: this.userInfo.seller_code,
       username: "",
     });
-   
+    this.$electron.ipcRenderer.on("show_tab", (data,val)=>{
+     this.selectedKey = val
+    })
   },
 };
 </script>

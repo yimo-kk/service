@@ -17,6 +17,9 @@
         @change="handleTableChange"
         :scroll="{ y: 320 }"
       >
+        <template v-for="(item, index) in columns" :slot="item.slotName">
+          <span :key="index">{{ $t(item.slotName) }}</span>
+        </template>
         <p slot="customer_avatar" slot-scope="scope">
           <a-avatar :src="scope" />
         </p>
@@ -41,45 +44,59 @@ export default {
       loading: false,
       columns:[
             {
-              title: this.$t('awaitInfo.tableTitle.visitorAvatar'),
+              slotName: 'awaitInfo.tableTitle.visitorAvatar',
               dataIndex: "customer_avatar",
               scopedSlots: {
                 customRender: "customer_avatar",
+                title: 'awaitInfo.tableTitle.visitorAvatar' 
               },
               align: "center",
+
             },
             {
-              title: this.$t('awaitInfo.tableTitle.visitorName'),
+              slotName: 'awaitInfo.tableTitle.visitorName',
               dataIndex: "customer_name",
               ellipsis: true,
               align: "center",
+              scopedSlots: {
+                title: 'awaitInfo.tableTitle.visitorName' 
+              },
             },
             {
-              title:this.$t('awaitInfo.tableTitle.visitorIp'),
+              slotName: 'awaitInfo.tableTitle.visitorIp',
               dataIndex: "customer_ip",
               ellipsis: true,
               align: "center",
+                scopedSlots: {
+                title: 'awaitInfo.tableTitle.visitorIp' 
+              },
             },
             {
-              title: this.$t('awaitInfo.tableTitle.interviewTime'),
+              slotName: 'awaitInfo.tableTitle.interviewTime',
               dataIndex: "create_time",
               ellipsis: true,
               align: "center",
+               scopedSlots: {
+              title: 'awaitInfo.tableTitle.interviewTime' 
+              },
             },
             {
-              title:  this.$t('awaitInfo.tableTitle.visitorType'),
+              slotName: 'awaitInfo.tableTitle.visitorType',
               dataIndex: "is_tourist",
               ellipsis: true,
               scopedSlots: {
                 customRender: "is_tourist",
+                title: 'awaitInfo.tableTitle.visitorType' 
               },
               align: "center",
+              
             },
             {
-              title: this.$t('awaitInfo.tableTitle.operating'),
+              slotName: 'awaitInfo.tableTitle.operating',
               dataIndex: "customer",
               scopedSlots: {
                 customRender: "uid",
+                title: 'awaitInfo.tableTitle.operating' 
               },
               align: "center",
             },
@@ -111,7 +128,7 @@ export default {
     reception(data) {
       let that = this;
       this.$confirm({
-        content: `确定接待${data.customer_name}吗？`,
+        content: `${this.$t('confirmReception')} ${data.customer_name} ${this.$t('transferState.question')}`,
         okText: this.$t('determine'),
         cancelText: this.$t('cancel'),
         onOk() {
@@ -138,7 +155,6 @@ export default {
               area:data.customer_area
             });
             that.$emit("selectMenu", { key: "CurrentChat" });
-            // that.deleteDataItem(data.customer_id);
             that.getCurrentListData()
           });
         },

@@ -16,6 +16,17 @@ module.exports = {
   recording:'正在录音请说话...',
   putAway:"收起",
   unfold:'展开',
+  update:'确认修改为',
+  status:'状态？',
+  confirmReception:'确定接待',
+  confirmCancel:"您确定关闭与",
+  conversation:'的会话吗？',
+  transferState:{
+    noSservice:'当前客服处于离开状态，',
+    confirm:"您确定将",
+    to:'转接给',
+    question:'吗?'
+  },
   topTitle:{
     currentChat:'当前会话',
     awaitChat:'待接入会话',

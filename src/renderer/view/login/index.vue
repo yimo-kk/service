@@ -29,7 +29,7 @@
             </a-form-item>
             <a-form-item :wrapper-col="{ span: 17, offset: 4 }">
                 <a-button type="primary" html-type="submit" style="width:100%"> {{$t('login.logIn')}}</a-button>
-                <a-checkbox
+                <a-checkbox 
                     v-decorator="[
                     'remember',
                     {
@@ -40,7 +40,6 @@
                 >
                     <p class="remember_password">{{$t('login.remember')}}</p>
                 </a-checkbox>
-                <!-- <a-button type="primary" @click="winSize">修改窗口大小</a-button> -->
             </a-form-item>
         </a-form>
     </a-card>
@@ -49,6 +48,7 @@
 
 <script>
 const session = require('electron').remote.session;
+const { remote } = require('electron')
 import { mapActions,mapMutations } from "vuex";
 import {isLocalStorage} from '@/utils/libs'
 export default {
@@ -66,7 +66,7 @@ export default {
                 account:'',
                 password:''
             },
-             url: window.location.href.split('#')[0]
+             url: 'https://server.nikidigital.net'
         };
     },
     computed: {},
@@ -87,46 +87,24 @@ export default {
                       this.setCookie('seller_code',params.seller_code)
                       this.setCookie('username',params.username)
                       this.setCookie('password',params.password)
-                    }else {  
+                }else {  
                   this.clearCookies()
                 } 
                 this.loading = true;
                 params.login_ip=this.ip 
                 this.handleLogin(params).then((result) => {
                         if (result.code === 0) {
-                            window.shopCode =params.seller_code
-                            // localStorage.setItem("accessToken", result.data.accessToken);
-                            // localStorage.setItem("refreshToken", result.data.refreshToken);
                             this.$message.success(result.msg);
-                            this.getUserInfo({
-                               accessToken: result.data.accessToken,
-                               refreshToken: result.data.refreshToken
-                            }).then((res) => { 
-                                // this.SET_USER_INFO(res.data)
-                                 window.kefu_code = res.data.kefu_code
-                                  let kefu_info = res.data
-                                   kefu_info['accessToken']=result.data.accessToken
-                                    kefu_info['refreshToken']=result.data.refreshToken
-                               if( isLocalStorage(params.seller_code)){
-                                   let code = JSON.parse( localStorage.getItem(params.seller_code))
-                                    code[res.data.kefu_code] = kefu_info
-                                    localStorage.setItem(params.seller_code,JSON.stringify(code))
-                               }else {
-                                   let obj={}
-                                   obj[res.data.kefu_code]=kefu_info
-                                   localStorage.setItem(params.seller_code,JSON.stringify(obj))
-                               }
-                                this.loading = false;
-                                res.code === 1 &&
-                                    this.$router.push({
-                                        name: "Home",
-                                        query:{
-                                            seller_code:params.seller_code,
-                                            kefu_code:res.data.kefu_code
-                                        }
-                                    }); 
+                            this.getUserData(params,result)
+                        } else if(result.code === -7){
+                            this.$socket.emit("message", {
+                                cmd: "forced",
+                                seller_code:params.seller_code,
+                                kefu_name:params.username
                             });
-                        } else {
+                            this.getUserData(params,result)
+                        }else{
+                            this.loading = false;
                             this.$toast({
                                 content: result.msg,
                             });
@@ -148,72 +126,101 @@ export default {
         },
         // 存储账号等
         setCookie(name,value){
-            localStorage.setItem(name,value)
+            // localStorage.setItem(name,value)
             // let exp = new Date();
             // this.$cookie.set(name, value,Math.round(exp.getTime() / 1000) + 3000 * 24 * 60 * 60);
 
             // alert(window.location.href)
             // alert(this.url)
-            // let Days = 300;
-            // let exp = new Date();
-            // let date = Math.round(exp.getTime() / 1000) + Days * 24 * 60 * 60;
-            //  const cookie = {
-            //   url:this.url,
-            //   name: name,
-            //   value: value,
-            //   expirationDate: date
-            // };
-            // session.defaultSession.cookies.set(cookie, (error) => {
-            //   if (error) console.error(error);
-            // });
+            let Days = 300;
+            let exp = new Date();
+            let date = Math.round(exp.getTime() / 1000) + Days * 24 * 60 * 60;
+             const cookie = {
+              url:this.url,
+              name: name,
+              value: value,
+              expirationDate: date
+            };
+            session.defaultSession.cookies.set(cookie, (error) => {
+              if (error) console.error(error);
+            });
         },
         /**
          * 获得
          */
         getCookies() {
-               this.loginData = {
-                  account:localStorage.getItem("username"), 
-                  password:localStorage.getItem("password"), 
-                  shopCode:localStorage.getItem("seller_code"), 
-                }
+            //    this.loginData = {
+            //       account:localStorage.getItem("username"), 
+            //       password:localStorage.getItem("password"), 
+            //       shopCode:localStorage.getItem("seller_code"), 
+            //     }
                 // this.loginData = {
                 //   account:this.$cookie.get("username"), 
                 //   password:this.$cookie.get("password"), 
                 //   shopCode:this.$cookie.get("seller_code"), 
                 // }
-        //   session.defaultSession.cookies.get({ url: this.url },  (error, cookies)=> {
-        //       alert(cookies)
-        //     if (cookies.length > 0) {
-        //       this.$nextTick(()=>{
-                //   this.loginData = {
-                //   account:cookies[1].name == 'username' ? cookies[1].value:'', 
-                //   password:cookies[2].name  == 'password' ? cookies[2].value:'',
-                //   shopCode:cookies[0].name  == 'seller_code' ? cookies[0].value:''
-                // }
-        //       })
-        //     }
-        //   });
+          session.defaultSession.cookies.get({ url: this.url },  (error, cookies)=> {
+            if (cookies.length > 0) {
+              this.$nextTick(()=>{
+                  this.loginData = {
+                  account:cookies[1].name == 'username' ? cookies[1].value:'', 
+                  password:cookies[2].name  == 'password' ? cookies[2].value:'',
+                  shopCode:cookies[0].name  == 'seller_code' ? cookies[0].value:''
+                }
+              })
+            }
+          });
         },
         /**
          * 清空缓存
          */
         clearCookies () {
-             
-            localStorage.removeItem("username")
-            localStorage.removeItem("password")
-            localStorage.removeItem("seller_code")
+            // localStorage.removeItem("username")
+            // localStorage.removeItem("password")
+            // localStorage.removeItem("seller_code")
 
             // this.$cookie.delete("username")
             // this.$cookie.delete("password")
             // this.$cookie.delete("seller_code")
-        //   session.defaultSession.clearStorageData({
-        //     origin: this.url,
-        //     storages: ['cookies']
-        //   }, function (error) {
-        //     if (error) console.error(error);
-        //   })
+          session.defaultSession.clearStorageData({
+            origin: this.url,
+            storages: ['cookies']
+          }, function (error) {
+            if (error) console.error(error);
+          })
+        },
+         getUserData(params,result){
+            this.getUserInfo({
+                accessToken: result.data.accessToken,
+                refreshToken: result.data.refreshToken
+            }).then((res) => { 
+                let kefu_info = res.data
+                kefu_info['accessToken']=result.data.accessToken
+                kefu_info['refreshToken']=result.data.refreshToken
+                if( isLocalStorage(params.seller_code)){
+                    let code = JSON.parse( localStorage.getItem(params.seller_code))
+                    code[res.data.kefu_code] = kefu_info
+                    localStorage.setItem(params.seller_code,JSON.stringify(code))
+                }else {
+                    let obj={}
+                    obj[res.data.kefu_code]=kefu_info
+                    localStorage.setItem(params.seller_code,JSON.stringify(obj))
+                }
+                this.loading = false;
+                res.code === 1 &&
+                this.$router.push({
+                    name: "Home",
+                    query:{
+                        seller_code:params.seller_code,
+                        kefu_code:res.data.kefu_code
+                        }
+                }); 
+                 // remote.getCurrentWindow().setSize(1020, 563)
+                // this.$electron.ipcRenderer.send('browser_center')
+            });
         },
         },
+       
     created() {
     }, 
     mounted() {
@@ -235,7 +242,6 @@ export default {
     align-items: center;
     position: relative;
 }
-
 .spin {
     width: 100%;
     height: 100%;
@@ -257,16 +263,13 @@ export default {
     font-size: 10px;
     color: #ccc;
 }
-
 /deep/.ant-input {
     font-size: 12px;
     border: 1px solid #d9d9d9;
 }
-
 /deep/.ant-form-item-control {
     text-align: left;
 }
-
 /deep/.ant-form-explain {
     font-size: 12px;
 }
