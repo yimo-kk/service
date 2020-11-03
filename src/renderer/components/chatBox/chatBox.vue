@@ -194,7 +194,10 @@ Enter+Ctrl/Shift  换行'>
       </div>
       <!-- 表情区域 -->
       <div v-show="faceShow">
-        <div class="mask" @click="faceShow = false"></div>
+        <div class="mask" @click="()=>{
+          faceShow = false
+          faceList=[]
+          }"></div>
         <div class="browBox">
           <ul>
             <li
@@ -250,7 +253,7 @@ Enter+Ctrl/Shift  换行'>
     <audio ref="audio" @ended="playEnd" style="display: none"></audio>
     <!-- 点击头像 -->
     <div
-      v-show="isHeadPortrait && isHeadImg && isAdmin"
+      v-show="isHeadPortrait && !isHeadImg && isAdmin"
       class="click_head_portrait"
       :style="{ left: left + 'px', top: top + 'px' }"
     >

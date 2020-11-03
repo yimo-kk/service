@@ -220,13 +220,14 @@ export default {
             });
         },
         },
-       
+        
     created() {
     }, 
     mounted() {
         this.ip = returnCitySN["cip"]; // ip
         this.$store.commit('SET_USER_IP',{ip:this.ip})
         this.getCookies()
+        
     },
 };
 </script>

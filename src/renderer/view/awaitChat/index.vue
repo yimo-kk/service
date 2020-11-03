@@ -115,7 +115,7 @@ export default {
   sockets: {}, 
   methods: {
     ...mapActions(["getAwaitList",'getCurrentListData']),
-    ...mapMutations(['SET_AWAIT_LIST']),
+    ...mapMutations(['SET_AWAIT_LIST','SET_CURRENT_CHAT_LIST_PUSH']),
     deleteDataItem(customer_id){
       let arr = []
      this.awaitList.forEach((item,index) => {
@@ -139,7 +139,8 @@ export default {
             uid: data.customer_id,
           };
           reception(params).then((result) => {
-            let socketMessage = {
+           if(result.code != -1){
+              let socketMessage = {
               username: data.customer_name,
               kefu_code: that.userInfo.kefu_code,
               uid:data.customer_id,
@@ -154,8 +155,12 @@ export default {
               login_ip:data.customer_ip, 
               area:data.customer_area
             });
+             that.getCurrentListData()
             that.$emit("selectMenu", { key: "CurrentChat" });
-            that.getCurrentListData()
+           }else {
+            that.$message.error(result.msg);
+           }
+           
           });
         },
       });

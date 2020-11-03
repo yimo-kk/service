@@ -25,9 +25,9 @@
             <a-menu-item> 
               <p @click="setStatus(2)">{{$t('goAway')}}</p>
             </a-menu-item>
-             <a-menu-item>
+             <!-- <a-menu-item>
               <p @click="setStatus(0)">{{$t('offline')}}</p>
-            </a-menu-item>
+            </a-menu-item> -->
             <a-menu-item>
               <p @click="refresh">{{$t('refresh')}}</p>
             </a-menu-item>
@@ -91,8 +91,8 @@ export default {
       });
     },
     refresh(){
-      this.reload()
-      // location. reload()
+      // this.reload()
+      location. reload()
     },
     setStatus(index){
       if(this.kefuStatus== index) return

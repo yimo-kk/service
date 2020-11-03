@@ -48,7 +48,6 @@ router.beforeEach((to, from, next) => {
   }else {
     path =  `/socket.io/?username=loginauth&`
   }
-  // if (seller_code && kefu_code) {
     Vue.use(
       new VueSocketIO({
         debug: true,
@@ -63,7 +62,6 @@ router.beforeEach((to, from, next) => {
         },
       })
     );
-  // }
 
   next();
 });

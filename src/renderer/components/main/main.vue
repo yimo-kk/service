@@ -108,8 +108,10 @@ export default {
     },
     userInfo(){
       return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
-    }
-
+    },
+    currentUser() {
+      return this.$store.state.Socket.currentUser;
+    },
     
   },
    sockets: {
@@ -120,7 +122,7 @@ export default {
     },
     reconnect(data) {
       this.setStatus(1)
-    }, 
+    },
    },
   watch: {
     chatList:{
@@ -266,7 +268,7 @@ export default {
       handleRelink(data).then((result) => {
         this.SET_CURRENT_CHAT_LIST_PUSH(result.data)
         this.$message.success("转接成功");
-      });
+      }); 
     },
     updateKefuStatus() {
       updateKefuStatus(this.userInfo.kefu_code).then(
@@ -289,21 +291,21 @@ export default {
       });
       return list;
     },
-   
-    setStatus(index){
+    setStatus(index){ 
       this.$socket.emit("message", {
           cmd: "service-status",
           kefu_code:this.userInfo.kefu_code,
           online_status:index,
       });
-    }
+    },
+   
   },
   created() {},
   mounted() {
     this.updateKefuStatus();
     this.getGroupList({ kefu_id:this.userInfo.kefu_id});
     // 等待接入
-     this.getAwaitList({
+    this.getAwaitList({
       seller_code: this.userInfo.seller_code,
       username: "",
     });
@@ -312,14 +314,12 @@ export default {
     })
   },
 };
-</script>
+</script> 
 
 <style lang="less" scoped>
 .header {
   display: flex;
   justify-content: space-between;
-
- 
 }
 
 .body_content {

@@ -220,12 +220,13 @@ export default {
       handler(newVal) {
         if (newVal.type) {
           if (newVal.kefu_code === this.userInfo.kefu_code) {
-            this.SET_CURRENT_USER({
-              activtyUid: null,
-              activtyeUsername: "",
-              login_ip:'', 
-              area:''
-            });
+            let params = {
+              activtyUid: this.currentChatList[0].uid,
+              activtyeUsername: this.currentChatList[0].username,
+              login_ip:this.currentChatList[0].login_ip, 
+              area:this.currentChatList[0].area
+            }
+            this.SET_CURRENT_USER(params);
             this.$message.success(newVal.message);
           }
           let list=[]
@@ -248,6 +249,17 @@ export default {
       },
       deep: true,
     },
+    // 当选中聊天人就拉相应的聊天记录
+    currentUser:{
+      handler(newVal){
+        this.getUserChatLog({
+          username: newVal.activtyeUsername, 
+          kefu_code: this.userInfo.kefu_code,
+          kefu_id: this.userInfo.kefu_id,
+        });
+      },
+      deep:true
+    }
   },
   methods: {
     ...mapActions(['getCurrentListData']),
@@ -278,28 +290,16 @@ export default {
         login_ip:data.login_ip, 
         area:data.area
       });
-      this.getUserChatLog({
-        username: data.username,
-        kefu_code: this.userInfo.kefu_code,
-        kefu_id: this.userInfo.kefu_id,
-      });
+      // this.getUserChatLog({
+      //   username: data.username,
+      //   kefu_code: this.userInfo.kefu_code,
+      //   kefu_id: this.userInfo.kefu_id,
+      // });
     },
-    getCurrentList(username) {
-      this.loading = true;
+    getCurrentList() {
+      this.loading = true; 
       this.getCurrentListData().then((result) => {
         if (this.currentChatList.length) {
-          if(username){ 
-            this.currentChatList.forEach(item=>{
-              if(item.username == username){
-                this.SET_CURRENT_USER({
-                  activtyUid: item.uid,
-                  activtyeUsername: item.username,
-                  login_ip:item.login_ip, 
-                  area:item.area
-                });
-              }
-            })
-          }
           if (
             this.currentUser.activtyUid &&
             this.currentUser.activtyeUsername
@@ -531,7 +531,7 @@ export default {
       this.isSearchList=false,
       this.sendMessage(val,0) 
     }
-  },
+  }, 
   created() {},
   mounted() {
     let oldArr = JSON.parse(JSON.stringify(this.currentChatList))

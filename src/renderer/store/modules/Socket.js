@@ -77,7 +77,7 @@ const mutations = {
     SOCKET_userMsg: (state, data) => {
         state.userMessage = data
     },
-    SOCKET_relink: (state, data) => {
+    SOCKET_relink: (state, data) => { 
         state.relinkMessage = data
     },
     SOCKET_refuse: (state, data) => {
@@ -132,8 +132,8 @@ const mutations = {
     //  上次接待 再次默认接待
     SOCKET_autoLink:(state, data) => { 
         data.access_time = data.createtime
+        data.noReadNum = 1
         if(!state.currentChatList.length){
-            data.noReadNum = 0
             state.currentUser= {
                 activtyUid: data.uid,
                 activtyeUsername: data.username,
@@ -219,8 +219,8 @@ const actions = {
                     commit('SET_AWAIT_LIST', awaitList)
                     resolve(awaitList);
                 })
-                .catch(err => {
-                    reject(err);
+                .catch(err => { 
+                    reject(err);  
                 });
         })
     },
