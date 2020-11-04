@@ -29,7 +29,7 @@
                 key="1"
                 class="more"
                 @click="clickMore"
-                :title="rightNum ? '收起' : '展开'"
+                :title="rightNum ? $t('putAway') :  $t('unfold') "
               >
                 <a-icon type="ellipsis" />
               </p>
@@ -82,7 +82,7 @@
                                  activityGroup.is_invite==0 ?'success': scope.online_status || scope.type ? 'success' : 'default'
                                 "
                                 :offset="[4, 12]"
-                                :title="activityGroup.is_invite==0 ?'success':scope.online_status || scope.type ? '在线' : '离线'"
+                                :title="activityGroup.is_invite==0 ?'success':scope.online_status || scope.type ? $t('online') : $t('offline')"
                               >
                               </a-badge>
                             </div>
@@ -376,7 +376,7 @@ export default {
     },
     uploadImage(file, type) {
       if (!isImage(file.file.type)) {
-        this.$toast("请正确选择图片！");
+        this.$toast(this.$t('selectImg'));
       } else {
         compressImage(
           file.file,
@@ -385,7 +385,7 @@ export default {
           },
           (error) => {
             // 压缩出错
-            this.$message.error("发送失败，请重新发送！");
+            this.$message.error(this.$t('sendErr'));
           }
         );
       }
@@ -474,7 +474,7 @@ export default {
     },
     operationGroupUser() {
       if (this.handleGroupUser.length <= 0) {
-        this.$message.error("请选择操作的群成员！");
+        this.$message.error(this.$t('selectGroupMember'));
         return;
       }
       let arr = this.handleGroupUser.map((item) => {
@@ -486,7 +486,7 @@ export default {
     // 批量禁言
     disableSendMsg() {
       if (this.handleGroupUser.length <= 0) {
-        this.$message.error("请选择操作的群成员！");
+        this.$message.error(this.$t('selectGroupMember'));
         return;
       }
       let arr = this.handleGroupUser.map((item) => {
@@ -526,7 +526,7 @@ export default {
     // 解禁
     removeforbid() {
       if (this.handleGroupUser.length <= 0) {
-        this.$message.error("请选择操作的群成员！");
+        this.$message.error(this.$t('selectGroupMember'));
         return;
       }
       let arr = this.handleGroupUser.map((item) => {
@@ -556,7 +556,7 @@ export default {
     // 加入黑名单
     addBlacks() {
       if (this.handleGroupUser.length <= 0) {
-        this.$message.error("请选择操作的群成员！");
+        this.$message.error(this.$t('selectGroupMember'));
         return;
       }
       let arr = this.handleGroupUser.map((item) => {
@@ -589,7 +589,7 @@ export default {
     // 解除黑名单
     removeblack() {
       if (this.handleGroupUser.length <= 0) {
-        this.$message.error("请选择操作的群成员！");
+        this.$message.error(this.$t('selectGroupMember'));
         return;
       }
       let arr = this.handleGroupUser.map((item) => {
@@ -658,7 +658,7 @@ export default {
     // 确定拉入群聊
     handleAddGroup(data) {
       if (this.addGroupListUser.length <= 0) {
-        this.$message.error("请选择添加成员！");
+        this.$message.error(this.$t('addGroupMember'));
         return;
       }
       let arr = this.addGroupListUser.map((item) => {

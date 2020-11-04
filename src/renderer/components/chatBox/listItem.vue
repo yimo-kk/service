@@ -1,11 +1,11 @@
 <template>
 <div class="list_item flex_up_down_center" @click="selectGroup(groupData)"  @contextmenu.prevent="handleRight" :data-index='index'>
      <a-badge  :data-index='index' :count="groupData.badgeShow ||groupData.noReadNum" :overflow-count="99" >
-        <img class="head_portrait" v-lazy="groupData.group_avatar ||groupData. headimg" alt  :data-index='index'/>
+        <img class="head_portrait" v-lazy="groupData.group_avatar || groupData. headimg" alt  :data-index='index'/>
     </a-badge>
     
     <div class="group_name" :data-index='index'>
-        <p :data-index='index'>{{groupData.group_name ||groupData.username }}</p>
+        <p :data-index='index'>{{groupData.group_name ||groupData.username }}</p> 
         <p :data-index='index'>{{groupData.create_time ||groupData.access_time }}</p>
     </div>
     <div v-show="groupData.isMultitap" class="multitap" >

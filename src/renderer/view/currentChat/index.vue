@@ -375,6 +375,7 @@ export default {
                   from_avatar: that.userInfo.kefu_avatar,
                   from_name: that.userInfo.kefu_name,
                   kefu_code: that.userInfo.kefu_code,
+                  seller_code: that.userInfo.seller_code,
                   username: userNmae,
                   cmd: "service-score",
                 };

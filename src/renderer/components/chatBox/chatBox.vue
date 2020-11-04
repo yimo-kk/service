@@ -5,6 +5,10 @@
     </div>
     <div class="chat_body">
       <div class="chat_all" ref="chatMain">
+        <div class="more_chat_log ">
+          <p v-if="true" class="more_log">加载更多</p>
+          <a-spin v-else />
+        </div>
         <div v-for="(item, index) in chatLogList" :key="index">
           <div v-if="item.forbid" class="forbid">{{item.message}}</div>
           <!-- <div v-if="true" class="forbid">你已被拉入黑名单，暂时无法发送消息！</div> -->
@@ -35,7 +39,7 @@
                   />
                 </div>
                 <div
-                  title="点击下载文件"
+                  :title="$t('download')"
                   v-else-if="item.type === 2"
                   class="flex_up_down_center"
                   style="padding-left: 10px; cursor: pointer"
@@ -95,7 +99,7 @@
                   />
                 </div>
                 <div
-                  title="点击下载文件"
+                  :title="$t('download')"
                   v-else-if="item.type === 2"
                   class="flex_up_down_center"
                   style="paddingRight: 10px; cursor: pointer"
@@ -188,8 +192,8 @@
         style="height:75px"
         @keydown="enter"
       />
-      <div class="send" @click="sendMessage(sendText, 0)"  title='Enter  发送
-Enter+Ctrl/Shift  换行'>
+      <div class="send" @click="sendMessage(sendText, 0)"  :title="`Enter  ${$t('currentInfo.send')}
+          Enter+Ctrl/Shift  ${$t('currentInfo.wrap')}`">
         <p :class="['send_btn', sendText.length ? 'activt_btn' : '']" >{{$t('currentInfo.send')}}</p>
       </div>
       <!-- 表情区域 -->
@@ -239,7 +243,7 @@ Enter+Ctrl/Shift  换行'>
     <div class="view_image flex_center" v-if="previewVisible">
         <customIcon
         @click="previewVisible=false"
-          title="关闭"
+          :title="$t('outLogin')"
           type="icon-cancel-1-copy"
           style="font-size: 30px;
           top: 25px;
@@ -277,7 +281,6 @@ Enter+Ctrl/Shift  换行'>
 </template>
 
 <script>
-import lamejs from 'lamejs'
 import Recorder from "js-audio-recorder";
 const recorder = new Recorder({
   sampleBits: 8, // 采样位数，支持 8 或 16，默认是16
@@ -376,7 +379,7 @@ export default {
     sendMessage(content, type) {
       this.sendType = type;
       if (!this.sendText && this.sendType === 0) {
-        this.$message.error("发送内容不能为空哦！");
+        this.$message.error(this.$t('sendAir'));
         return;
       }
       this.$emit("sendMessage", content, type);
@@ -471,7 +474,7 @@ export default {
           this.startRecorder();
         },
         (error) => {
-          this.$toast("暂无录音权限！请重新授权");
+          this.$toast(this.$t('permission'));
         }
       );
     },
@@ -484,7 +487,7 @@ export default {
       this.drawRecordId && cancelAnimationFrame(this.drawRecordId);
       this.drawRecordId = null;
       if (recorder.duration < 1) {
-        this.$message.error("说话时间太短了");
+        this.$message.error(this.$t('timeShort'));
         return;
       }
       let dataMp3 = recorder.getWAVBlob();
@@ -522,7 +525,7 @@ export default {
         },
         (error) => {
           // 出错
-          this.$toast("当前环境不支持语音");
+          this.$toast(this.$('noVoice'));
           recorder.isServe = true;
           this.isMask = false;
         }
@@ -560,7 +563,7 @@ export default {
         }
         aLink.click();
       } catch (error) {
-        this.$message.error("文件已过期！");
+        this.$message.error(this.$t('fileExpired'));
       }
     },
     handleRightImg(e) {
@@ -603,11 +606,8 @@ export default {
     kickOutOrstopSpeak(val) {
        this.isHeadPortrait = false
       let { from_id, from_name,status } = this.selectUser;
-      // if(val === 1){
-      //   this.$emit("stopSpeak", [{  uid:from_id, username:from_name,status:1 }]);
-      // }else if(val === 2){
-        this.$emit("kickOut", [{  uid:from_id, username:from_name}]);
-      // }
+      this.$emit("kickOut", [{  uid:from_id, username:from_name}]);
+      
     },
     // 加黑名单
     addBlacklist(){
@@ -693,6 +693,15 @@ export default {
       font-size: 14px;
       color: #ccc;
       text-align: center;
+    }
+    .more_chat_log{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      .more_log{
+        cursor: pointer;
+      }
     }
   }
 

@@ -6,7 +6,7 @@ function getToastInstance () {
   return toastInstance
 }
 
-const notice = function ({ content = '提示', icon = '', duration = 3 }) {
+const notice = function ({ content = $t('prompt'), icon = '', duration = 3 }) {
   let instance = getToastInstance()
   instance.notice({
     content,

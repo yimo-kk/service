@@ -1,4 +1,15 @@
 module.exports = {
+  addGroupMember:'Please select a group member to operate!',
+  selectGroupMember:'Please select a group member to operate!',
+  sendErr:'Sending failed, please resend!',
+  selectImg:'Please select the picture correctly!',
+  NewNews:'New message received',
+  transferSuccess:'Successful transfer',
+  fileExpired:'The file has expired!',
+  noVoice:'The current environment does not support voice',
+  timeShort:'Talk time is too short',
+  permission:'No recording permission!',
+  sendAir:'Send content cannot be empty!',
   online:'Online',
   offline:'Offline',
   goAway:'Go away',
@@ -21,8 +32,9 @@ module.exports = {
   confirmReception:'Confirm reception ',
   confirmCancel:"Are you sure you want to end the conversation with ",
   conversation:'？',
+  download:'Click to download file',
   transferState:{
-    noSservice:'Customer service is not currently available,',
+    noSservice:'Customer service is not currently available,', 
     to:'to',
     confirm:"Are you sure to transfer ",
     question:'?'
@@ -50,6 +62,7 @@ module.exports = {
     file:'File',
     voice:'Voice',
     send:'Send',
+    wrap:'Wrap',
     pleaseEnter:'Please enter...',
     transfer:'Waiting for transfer'
   },
@@ -74,6 +87,7 @@ module.exports = {
     banned:'Banned',
     blocked:'Blocked',
     mute:'Mute',
+    isMute:'No talking',
     unmute:'Unmute',
     addBlack:'Add to blacklist',
     removeBlack:'Remove blacklist', 

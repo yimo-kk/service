@@ -188,7 +188,6 @@ export default {
 <style lang="less" scoped>
 .await_list {
   overflow: auto;
-
   // background-color: #fff;
   .handle {
     display: flex;

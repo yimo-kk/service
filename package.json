@@ -25,7 +25,6 @@
     "axios": "^0.18.0",
     "dayjs": "^1.8.36",
     "js-audio-recorder": "^1.0.6",
-    "lamejs": "^1.2.0",
     "less": "^3.12.2",
     "less-loader": "^7.0.1",
     "socket.io-client": "^2.3.0",

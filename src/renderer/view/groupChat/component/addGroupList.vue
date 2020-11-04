@@ -16,7 +16,7 @@
           <a-badge
             :status="scope.online_status ? 'success' : 'default'"
             :offset="[4, 12]"
-            :title="scope.online_status ? '在线' : '离线'"
+            :title="scope.online_status ? $t('online') : $t('offline')"
           >
             <a-icon
               v-if="scope.status"

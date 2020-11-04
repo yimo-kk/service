@@ -116,7 +116,13 @@ export default {
   },
    sockets: {
     // connect:查看socket是否渲染成功
-    connect() {},
+    connect() {
+      console.log(22222)
+      this.$socket.emit('enter',{
+        seller_code:this.userInfo.seller_code,
+        kefu_code:this.userInfo.kefu_code
+      })
+    },
     // disconnect:检测socket断开连接
     disconnect(data) {
     },
@@ -160,8 +166,9 @@ export default {
             okText: this.$t('determine'),
             cancelText: this.$t('refuse'),
             onOk() {
-              that.$socket.emit("message", { 
+              that.$socket.emit("message", {
                 username: val.user_name,
+                seller_code:that.userInfo.seller_code,
                 from_kefu_code: val.from_kefu_code,
                 kefu_name: val.kefu_name,
                 kefu_code: val.kefu_code,
@@ -266,20 +273,21 @@ export default {
     },
     handleRelink(data) {
       handleRelink(data).then((result) => {
-        this.SET_CURRENT_CHAT_LIST_PUSH(result.data)
-        this.$message.success("转接成功");
+        debugger
+        if(result.code === -1){
+        this.$message.error(result.msg);
+        }else{
+           this.SET_CURRENT_CHAT_LIST_PUSH(result.data)
+        this.$message.success(result.msg);
+        }
+       
       }); 
     },
     updateKefuStatus() {
       updateKefuStatus(this.userInfo.kefu_code).then(
         (result) => {
           this.SET_STATUS({online_status:1})
-          this.$socket.emit("message",
-            {
-              cmd: "service-status",
-              kefu_code:this.userInfo.kefu_code,
-              online_status:1,
-              });
+          this.setStatus(1)
         }
       );
     },
@@ -295,6 +303,7 @@ export default {
       this.$socket.emit("message", {
           cmd: "service-status",
           kefu_code:this.userInfo.kefu_code,
+          seller_code:this.userInfo.seller_code,
           online_status:index,
       });
     },

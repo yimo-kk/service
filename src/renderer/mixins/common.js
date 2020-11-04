@@ -35,7 +35,7 @@ export default function() {
         clearTimeout(timeOut);
       },
       notification(data) {
-        const myNotification = new Notification(`${data.from_name}给你发了一条新消息`, {
+        const myNotification = new Notification(this.$t('NewNews'), {
             body: ``,
             timeoutType: "default",
             silent: true,
