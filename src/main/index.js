@@ -9,7 +9,7 @@ import {
   dialog,
 } from "electron";
 import path from "path";
-
+// import updateHandle from './update'
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -26,7 +26,6 @@ var notification;
 const winURL =
   process.env.NODE_ENV === "development"
     ? `http://localhost:9080`
-    // ? `file:///D:/work/my-project/build/service-win32-x64/resources/app/dist/electron/index.html`
     : `file://${__dirname}/index.html`;
 
 // 只能开一个应用 
@@ -106,6 +105,8 @@ function createWindow() {
   // ipcMain.on("browser_center", () => {
   //   mainWindow.center()
   // });
+  // 尝试更新
+  // updateHandle()
 }
 // 设置托盘
 function implementSystemTray() {

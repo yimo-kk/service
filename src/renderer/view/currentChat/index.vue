@@ -220,22 +220,32 @@ export default {
       handler(newVal) {
         if (newVal.type) {
           if (newVal.kefu_code === this.userInfo.kefu_code) {
-            let params = {
-              activtyUid: this.currentChatList[0].uid,
-              activtyeUsername: this.currentChatList[0].username,
-              login_ip:this.currentChatList[0].login_ip, 
-              area:this.currentChatList[0].area
+            let list=[]
+            JSON.parse(JSON.stringify(this.currentChatList)).forEach(item=>{
+              if(item.username != newVal.username){
+                list.push(item)
+              }
+            })
+            this.SET_CURRENT_CHAT_LIST(list)
+            let params ={}
+             if(this.currentChatList.length ){
+              params= {
+                activtyUid: this.currentChatList[0].uid,
+                activtyeUsername: this.currentChatList[0].username,
+                login_ip:this.currentChatList[0].login_ip, 
+                area:this.currentChatList[0].area
+              }
+             }else {
+              params= {
+                activtyUid: null,
+                activtyeUsername: "",
+                login_ip:'', 
+                area:''
+              }
             }
             this.SET_CURRENT_USER(params);
-            this.$message.success(newVal.message);
+            this.$message.success(newVal.message); 
           }
-          let list=[]
-          JSON.parse(JSON.stringify(this.currentChatList)).forEach(item=>{
-            if(item.username != newVal.username){
-              list.push(item)
-            }
-          })
-            this.SET_CURRENT_CHAT_LIST(list)
         } else {
           this.$message.error(newVal.message);
         }

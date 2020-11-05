@@ -2,6 +2,24 @@
     <a-config-provider :locale="locale">
         <div id="app">
             <router-view v-if="isRouterAlive"></router-view>
+
+            <!-- <a-modal
+                title="正在更新新版本,请稍候..."
+                width="60%"
+                :visible="visible"
+                :confirm-loading="confirmLoading"
+                @ok="handleOk"
+                @cancel="handleCancel"
+                >
+                <p>{{ ModalText }}</p>
+            </a-modal> -->
+            <!--  <a-progress
+                :stroke-color="{
+                    '0%': '#108ee9',
+                    '100%': '#87d068',
+                }"
+            :percent="99.9"
+            /> -->
             <audio id="audio" preload="auto" loop>
                 <source src="./assets/voice.mp3" type="audio/mp3" />
             </audio>
@@ -25,6 +43,7 @@ export default {
             ip:'',
             address:'',
             isRouterAlive: true, // 控制视图是否显示的变量 
+            visible:false
         }
     },
     mounted () {
@@ -54,6 +73,26 @@ export default {
                 this.$electron.ipcRenderer.send('app-exit')
             }
         });
+        // 手动触发更新
+        // ipcRenderer.send('checkForUpdate')
+        //   let _this = this;
+        // //接收主进程版本更新消息
+        // this.$electron.ipcRenderer.on("message", (event, arg) => {
+        // console.log(arg,111);
+        // if ("update-available" == arg.cmd) {
+        //    显示升级对话框
+        //     _this.dialogVisible = true;
+        // } else if ("download-progress" == arg.cmd) {
+        //     console.log(arg.message.percent);
+        //     let percent = Math.round(parseFloat(arg.message.percent));
+        //     _this.percentage = percent;
+        // } else if ("error" == arg.cmd) {
+        //     _this.dialogVisible = false;
+        //     _this.$message("更新失败");
+        // }
+        // // }
+        // });
+        // this.$electron.ipcRenderer.send("checkForUpdate");
     },
     methods: {
         reload () {

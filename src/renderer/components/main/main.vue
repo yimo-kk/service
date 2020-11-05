@@ -63,6 +63,7 @@ import { updateKefuStatus } from "@/api/login";
 import common from "@/mixins/common";
 import { handleRelink } from "@/api/current.js";
 import { mapMutations, mapActions } from "vuex";
+import { DebounceBy } from '@/utils/libs'
 export default {
   name: "Main",
   mixins: [common()],
@@ -117,7 +118,6 @@ export default {
    sockets: {
     // connect:查看socket是否渲染成功
     connect() {
-      console.log(22222)
       this.$socket.emit('enter',{
         seller_code:this.userInfo.seller_code,
         kefu_code:this.userInfo.kefu_code
@@ -165,37 +165,39 @@ export default {
             content: val.message,
             okText: this.$t('determine'),
             cancelText: this.$t('refuse'),
-            onOk() {
-              that.$socket.emit("message", {
+            onOk: DebounceBy(()=>{
+                console.log(111)
+                 that.$socket.emit("message", {
                 username: val.user_name,
                 seller_code:that.userInfo.seller_code,
                 from_kefu_code: val.from_kefu_code,
                 kefu_name: val.kefu_name,
                 kefu_code: val.kefu_code,
                 cmd: "relink-accept",
-              });
-              that.$socket.emit("message", {
-                username: val.user_name,
-                kefu_code: that.userInfo.kefu_code,
-                kefu_name: that.userInfo.kefu_name,
-                uid:val.user_id,
-                seller_code:that.userInfo.seller_code,
-                cmd: "service-prompt",
-              });
-              that.handleRelink({
-                seller_code: that.userInfo.seller_code,
-                uid: val.user_id,
-                kefu_code: that.userInfo.kefu_code,
-                from_kefu_code: val.from_kefu_code,
-              });
-              that.selectedKey = "CurrentChat";
-            },
+                });
+                that.$socket.emit("message", {
+                  username: val.user_name,
+                  kefu_code: that.userInfo.kefu_code,
+                  kefu_name: that.userInfo.kefu_name,
+                  uid:val.user_id,
+                  seller_code:that.userInfo.seller_code,
+                  cmd: "service-prompt",
+                });
+                that.handleRelink({
+                  seller_code: that.userInfo.seller_code,
+                  uid: val.user_id,
+                  kefu_code: that.userInfo.kefu_code,
+                  from_kefu_code: val.from_kefu_code,
+                });
+                that.selectedKey = "CurrentChat";
+              },4000),
             onCancel() {
               that.$socket.emit("message", {
                 username: val.user_name,
                 from_kefu_code: val.from_kefu_code,
                 kefu_name: that.userInfo.kefu_name,
                 kefu_code: that.userInfo.kefu_code,
+                seller_code:that.userInfo.seller_code,
                 cmd: "relink-refuse",
               });
             },
@@ -273,14 +275,14 @@ export default {
     },
     handleRelink(data) {
       handleRelink(data).then((result) => {
-        debugger
         if(result.code === -1){
-        this.$message.error(result.msg);
+          this.$message.error(result.msg);
         }else{
-           this.SET_CURRENT_CHAT_LIST_PUSH(result.data)
-        this.$message.success(result.msg);
+          this.SET_CURRENT_CHAT_LIST_PUSH(result.data)
+          this.$message.success(result.msg);
         }
-       
+        console.log(this.currentChatList,5555)
+        
       }); 
     },
     updateKefuStatus() {

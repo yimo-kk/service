@@ -1,4 +1,5 @@
 module.exports = {
+  downloadFile:'下载成功',
   selectGroupMember:'请选择操作的群成员！',
   addGroupMember:'请选择添加成员！',
   sendErr:'发送失败，请重新发送！',

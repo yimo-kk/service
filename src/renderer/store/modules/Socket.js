@@ -81,6 +81,7 @@ const mutations = {
         state.relinkMessage = data
     },
     SOCKET_refuse: (state, data) => {
+        console.log(data,3333)
         state.refuseMessage = data
     },
     SOCKET_prompt:(state, data)=>{
@@ -202,7 +203,7 @@ const actions = {
     // 获取群列表
     getGroupList({ commit },data) {
         return new Promise(async (resolve, reject) => {
-            getGroupList(data).then((result) => {
+            await getGroupList(data).then((result) => {
                     commit('SET_CHAT_LIST',  result.data)
                     resolve( result.data);
                 })
@@ -214,7 +215,7 @@ const actions = {
      // 等待接入的列表
      getAwaitList({ commit },data) {
         return new Promise(async (resolve, reject) => {
-            getCustomerQueue(data).then((result) => {
+            await getCustomerQueue(data).then((result) => {
                let awaitList = result.data;
                     commit('SET_AWAIT_LIST', awaitList)
                     resolve(awaitList);
@@ -227,11 +228,11 @@ const actions = {
       // 正在聊天的列表
       getCurrentListData({ state,commit }) {
         return new Promise(async (resolve, reject) => {
-            getNowServiceList().then((result) => {
+            await  getNowServiceList().then((result) => {
                 let list= JSON.parse(JSON.stringify(state.currentChatList))
                 let currentChatList = result.data.map(item=>{
                     list.forEach(val=>{
-                        val.isMultitap?item.isMultitap = true:item.isMultitap = false
+                        val.isMultitap ? item.isMultitap = true:item.isMultitap = false
                     })
                     return item
                 })

@@ -5,10 +5,10 @@
     </div>
     <div class="chat_body">
       <div class="chat_all" ref="chatMain">
-        <div class="more_chat_log ">
+        <!-- <div class="more_chat_log ">
           <p v-if="true" class="more_log">加载更多</p>
           <a-spin v-else />
-        </div>
+        </div> -->
         <div v-for="(item, index) in chatLogList" :key="index">
           <div v-if="item.forbid" class="forbid">{{item.message}}</div>
           <!-- <div v-if="true" class="forbid">你已被拉入黑名单，暂时无法发送消息！</div> -->
@@ -396,7 +396,11 @@ export default {
       serviceSendChatFile(formdata)
         .then((result) => {
           this.loading = false;
-          this.$emit("uploadFile", result.data, 2);
+          if(result.code === -1){
+            this.$message.error(result.msg)
+          }else {
+            this.$emit("uploadFile", result.data, 2);
+          }
         })
         .catch((err) => {
           this.loading = false;
@@ -562,6 +566,7 @@ export default {
           aLink.download = fileName;
         }
         aLink.click();
+        // this.$message.success(this.$t('downloadFile'))
       } catch (error) {
         this.$message.error(this.$t('fileExpired'));
       }

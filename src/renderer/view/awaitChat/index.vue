@@ -114,7 +114,7 @@ export default {
   watch: {},
   sockets: {}, 
   methods: {
-    ...mapActions(["getAwaitList",'getCurrentListData']),
+    ...mapActions(["getAwaitList",]),//'getCurrentListData'
     ...mapMutations(['SET_AWAIT_LIST','SET_CURRENT_CHAT_LIST_PUSH']),
     deleteDataItem(customer_id){
       let arr = []
@@ -155,14 +155,14 @@ export default {
               login_ip:data.customer_ip, 
               area:data.customer_area
             });
-             that.getCurrentListData()
+            //  that.getCurrentListData()
             that.$emit("selectMenu", { key: "CurrentChat" });
            }else {
             that.$message.error(result.msg);
            }
            
           });
-        },
+        }, 
       });
     },
     onSearch(val) { 
