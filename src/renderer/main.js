@@ -10,7 +10,6 @@ import "@/assets/iconfont/iconfont.css";
 import { Icon } from 'ant-design-vue'
 import iconFont from './assets/iconfont/iconfont'
 import './directives/index'
-import cookie from 'vue-cookie'
 
 import i18n from './i18n/';
 import VueLazyload from 'vue-lazyload'
@@ -30,7 +29,6 @@ import Toast from '@/components/Toast/toast'
 Vue.prototype.$toast = Toast
 Vue.config.productionTip = false
 Vue.use(Antd)
-Vue.prototype.$cookie = cookie;  //配置时候prototype.$这里的名字自己定义不是固定是cookie
 /* eslint-disable no-new */
 new Vue({
   components: { App },

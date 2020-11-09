@@ -33,7 +33,6 @@ export default {
       type: String,
     },
   },
-  components: {},
   data() {
     return {
       IP: "",
@@ -45,7 +44,6 @@ export default {
       return this.$store.state.Socket.currentUser;
     },
   },
-  watch: {},
   methods: {
     multitapConversation() {
       this.$emit("multitapConversation",'col');
@@ -53,10 +51,6 @@ export default {
     closeChat(){
        this.$emit("closeChat",'col');
     }
-  },
-  created() {},
-  mounted() {
-    
   },
 };
 </script>

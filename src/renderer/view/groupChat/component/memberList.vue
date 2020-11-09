@@ -33,7 +33,6 @@
 <script>
 export default {
     name: "MemberList",
-    components: {},
     props: {
         groupList: {
             type: Object,
@@ -54,8 +53,6 @@ export default {
             operate: false,
         };
     },
-    computed: {},
-    watch: {},
     methods: {
         selectGroupUser(data) {
             if (this.operate) {
@@ -84,8 +81,6 @@ export default {
         }
 
     },
-    created() {},
-    mounted() {},
 };
 </script>
 

@@ -111,8 +111,6 @@ export default {
       return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
     }
   },
-  watch: {},
-  sockets: {}, 
   methods: {
     ...mapActions(["getAwaitList",]),//'getCurrentListData'
     ...mapMutations(['SET_AWAIT_LIST','SET_CURRENT_CHAT_LIST_PUSH']),
@@ -179,8 +177,6 @@ export default {
       pager.current = pagination.current;
       this.pagination = pager;
     },
-  },
-  mounted() {
   },
 };
 </script>

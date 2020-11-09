@@ -24,15 +24,12 @@ export default {
         },
         index:Number
     },
-    components: {},
     data() {
         return {
             top: 0,
             left: 0,
         };
     },
-    computed: {},
-    watch: {},
     methods: {
         selectGroup(data) {
                 this.$emit("selectGroup", data);
@@ -41,8 +38,6 @@ export default {
              this.$emit("handleRight", e);
         },
     },
-    created() {},
-    mounted() {},
 };
 </script>
 

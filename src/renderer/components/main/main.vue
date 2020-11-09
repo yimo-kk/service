@@ -166,14 +166,13 @@ export default {
             okText: this.$t('determine'),
             cancelText: this.$t('refuse'),
             onOk: DebounceBy(()=>{
-                console.log(111)
-                 that.$socket.emit("message", {
-                username: val.user_name,
-                seller_code:that.userInfo.seller_code,
-                from_kefu_code: val.from_kefu_code,
-                kefu_name: val.kefu_name,
-                kefu_code: val.kefu_code,
-                cmd: "relink-accept",
+                that.$socket.emit("message", {
+                  username: val.user_name,
+                  seller_code:that.userInfo.seller_code,
+                  from_kefu_code: val.from_kefu_code,
+                  kefu_name: val.kefu_name,
+                  kefu_code: val.kefu_code,
+                  cmd: "relink-accept",
                 });
                 that.$socket.emit("message", {
                   username: val.user_name,
@@ -190,7 +189,7 @@ export default {
                   from_kefu_code: val.from_kefu_code,
                 });
                 that.selectedKey = "CurrentChat";
-              },4000),
+              },800),
             onCancel() {
               that.$socket.emit("message", {
                 username: val.user_name,

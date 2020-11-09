@@ -66,8 +66,6 @@ export default {
       return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
     }
   },
-  watch: {
-  },
   methods: {
     moment,
     ...mapMutations(['RESETVUEX']),
@@ -127,9 +125,6 @@ export default {
         }
       }
   },
-
-  created() {},
-  mounted() {},
 };
 </script>
 

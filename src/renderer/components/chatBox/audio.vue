@@ -56,9 +56,6 @@ export default {
             this.$emit("play", this.isPlay);
         },
     },
-    created() {},
-    mounted() {
-    },
 };
 </script>
 

@@ -24,14 +24,13 @@ export default function() {
       stop(timeOut) {
         this.currentTime = Date.now();
         let audio = document.querySelector("#audio");
-        if (this.currentTime - this.lastRunTime < 1000) {
-        } else {
+        if (this.currentTime - this.lastRunTime >= 1000) {
           if (this.isPlaying) {
             audio.currentTime = 0;
             audio.pause();
             this.isPlaying = false;
           }
-        }
+        } 
         clearTimeout(timeOut);
       },
       notification(data) {

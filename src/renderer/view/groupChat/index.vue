@@ -36,6 +36,7 @@
             </template>
           </a-page-header>
           <ChatBox
+          ref="groupChatBox"
             :chatLogList="chatLogList"
             @sendMessage="sendMessage"
             @uploadImage="uploadImage" 
@@ -44,11 +45,13 @@
             @addBlacklist="addBlacklist"
             @removeblack="sendBlackMessage"
             @removeforbid="sendForbidMessage"
-            :logLoading="logLoading"
             @uploadFile='uploadFile'
             :isAdmin="isAdmin"
             :on_file='on_file'
             :on_voice='on_voice'
+            :isMore='isMore'
+            :count='count'
+            @getLog='getLog'
           ></ChatBox>
         </div>
       </a-col>
@@ -196,6 +199,7 @@
     <a-modal
       :title="$t('groupInfo.AddGroupMembers')"
       v-model="isAddGroup"
+      width='66%'
       @ok="handleAddGroup"
       :okText="$t('determine')"
       :cancelText="$t('cancel')"
@@ -206,6 +210,7 @@
         :isAddGroup="isAddGroup"
         :isNotGroupList="isNotGroupList"
         @onChangeCheckbox="onChangeAddGroupUser"
+        @addSearch='getNotGroupUsersList'
       ></addGroupList>
     </a-modal>
   </div>
@@ -245,11 +250,10 @@ export default {
     return {
       checkedList: [],
       isGroupList: false,
-      // list_loading: false,
+      isMore: false,
       rightNum: 0,
       centerNum: 19,
       chatLogList: [],
-      logLoading: false,
       groupList: [],
       selectGroupUserId: "",
       activtTabs: "1",
@@ -261,7 +265,9 @@ export default {
       addGroupListUser: [],
       isAdmin: false,
       on_file: 0,
-      on_voice: 0
+      on_voice: 0,
+      page:1,
+      count:0,
     };
   },
   computed: {
@@ -292,6 +298,11 @@ export default {
       handler(newVal) {
         let data = JSON.parse(JSON.stringify(newVal));
         if (data.group_id == this.activityGroup.activityId) {
+           this.$socket.emit("message", {
+             cmd:'groupReadMsg',
+             group_id: this.activityGroup.activityId,
+             kefu_id:this.userInfo.kefu_id
+           });
           data.type === 3 && (data.message.play = false);
           data.type === 0 &&
             (data.message = conversionFace(data.content || data.message));
@@ -411,7 +422,9 @@ export default {
         is_invite: data.is_invite,
       });
       this.chatLogList = [];
+      this.page = 1
       this.getGroupChatLog({
+        page:1,
         group_id: data.group_id,
         kefu_code: this.userInfo.kefu_code,
         kefu_id: this.userInfo.kefu_id,
@@ -432,15 +445,14 @@ export default {
         });
       }
     },
-    getGroupChatLog(data) {
-      this.logLoading = true; 
+    getGroupChatLog(data,callback) {
       getGroupChatLog(data)
         .then((result) => {
-          this.logLoading = false;
+          this.count = result.count
           this.on_file =result.group.on_file?result.group.on_file:0
           this.on_voice=result.group.on_voice?result.group.on_voice:0
           this.isAdmin = result.isAdmin;
-          this.chatLogList = result.data.map((item) => {
+         let array = result.data.map((item) => {
             if (item.type == 0) {
               item.content
                 ? (item.content = conversionFace(item.content))
@@ -450,9 +462,22 @@ export default {
             }
             return item;
           });
+           if(this.page > 1){
+             this.chatLogList.unshift(...array)
+              callback()
+              setTimeout(()=>{
+                this.isMore = false
+             },200)
+           }else {
+              this.chatLogList = array
+               this.isMore = false
+           }
+            
         })
         .catch((err) => {
-          this.logLoading = false;
+          setTimeout(()=>{
+                this.isMore = false
+             },200)
         });
     },
     getGroupMemberList(data) {
@@ -513,15 +538,6 @@ export default {
       });
       this.handleGroupUser = [];
       this.checkedList = [];
-
-      // prohibitSay({
-      //   group_id: this.activityGroup.activityId,
-      //   users: data,
-      // }).then((result) => {
-      //   this.checkedList = [];
-      //   this.handleGroupUser = [];
-      //   this.$message.success(result.msg);
-      // });
     },
     // 解禁
     removeforbid() {
@@ -629,13 +645,14 @@ export default {
           seller_code: this.userInfo.seller_code,
         });
       });
+      this.checkedList=[]
     },
-    getNotGroupUsersList() {
+    getNotGroupUsersList(val='') {
       this.isNotGroupList = true;
       getNotGroupUsersList({
         seller_code: this.userInfo.seller_code,
         group_id: this.activityGroup.activityId,
-        keywords: "",
+        keywords: val,
       })
         .then((result) => {
           this.isNotGroupList = false;
@@ -709,10 +726,23 @@ export default {
     uploadFile(data, type) {
       this.sendMessage(data, type);
     },
-  },
-  created() {},
-  mounted() {
-    this.logLoading = true;
+    getLog(e,fn){ 
+      this.isMore = true
+      this.page ++
+      let scrollH = this.$refs.groupChatBox.$refs.chatMain.scrollHeight
+      this.getGroupChatLog( {
+         page:this.page,
+        group_id: this.activityGroup.activityId,
+        kefu_id: this.userInfo.kefu_id,
+        kefu_code: this.userInfo.kefu_code,
+        },()=>{
+          setTimeout(()=>{
+            e.target.scrollTo(0,  e.target.scrollHeight -  (scrollH + 30 ))
+            }) 
+          })
+    },
+    initGroup(){
+      this.isMore = true;
       this.getGroupList({
       kefu_id: this.userInfo.kefu_id,
     })
@@ -731,6 +761,7 @@ export default {
             this.SET_CHAT_LIST(arr);
             this.chatLogList = [];
             this.getGroupChatLog({
+              page:1,
               group_id: this.$store.state.Socket.chatList[0].group_id,
               kefu_id: this.userInfo.kefu_id,
               kefu_code: this.userInfo.kefu_code,
@@ -747,6 +778,7 @@ export default {
             this.SET_CHAT_LIST(list);
             this.chatLogList = [];
             this.getGroupChatLog({
+              page:1,
               group_id: this.activityGroup.activityId,
               kefu_id: this.userInfo.kefu_id,
               kefu_code: this.userInfo.kefu_code,
@@ -754,7 +786,10 @@ export default {
           }
         }
       })
-      .catch((err) => {});
+    }
+  },
+  mounted() {
+    this.initGroup()
   },
 };
 </script>

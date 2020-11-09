@@ -42,9 +42,11 @@
               :isName="false"
               :chatLogList="currentChatLogList"
               @sendMessage="sendMessage"
-              :logLoading='logLoading'
               @uploadImage="uploadImage"
               @uploadFile="uploadFile"
+              :isMore='isMore'
+              :count='count'
+              @getLog='getLog'
             ></ChatBox> 
           </div>
         </a-col>
@@ -114,7 +116,7 @@
       </a-empty>
     </div>
     <div id="close" v-show="close" class="menu_close" :style="{left:left+'px',top:top+'px'}">
-      <p @click.stop="closeConversation">
+      <p @click.stop="closeConversation('')">
          <a-icon type="close-circle" style="color:#ccc" />  {{$t('currentInfo.closeSession')}}
       </p>
       <p @click.stop="multitapConversation">
@@ -158,10 +160,8 @@ export default {
     CurrentOperation,
     Multitap,
   },
-  props: {},
   data() {
     return {
-      logLoading:false,
       isSearch:false, 
       loading: false,
       centerNum: 13,
@@ -181,7 +181,10 @@ export default {
       searchList:[],
       isSearchList:false,
       searchKeyword:'',
-      groupTitle:''
+      groupTitle:'',
+      page:1,
+      count:0,
+      isMore:false,
     };
   },
   computed: {
@@ -205,8 +208,14 @@ export default {
     // 收到用户发来消息
     userMessage: {
       handler(newVal) {
+        // if(newVal.from_name === ){}
         let data = JSON.parse(JSON.stringify(newVal));
         if (data.from_name == this.currentUser.activtyeUsername) {
+           this.$socket.emit("message", {
+             cmd:'serviceReadMsg',
+             from_name:data.from_name,
+             kefu_code:this.userInfo.kefu_code
+           });
           data.type === 3 && (data.message.play = false);
           data.type === 0 &&
             (data.message = conversionFace(data.content || data.message));
@@ -262,7 +271,9 @@ export default {
     // 当选中聊天人就拉相应的聊天记录
     currentUser:{
       handler(newVal){
+        this.page = 1
         this.getUserChatLog({
+          page:1,
           username: newVal.activtyeUsername, 
           kefu_code: this.userInfo.kefu_code,
           kefu_id: this.userInfo.kefu_id,
@@ -300,11 +311,6 @@ export default {
         login_ip:data.login_ip, 
         area:data.area
       });
-      // this.getUserChatLog({
-      //   username: data.username,
-      //   kefu_code: this.userInfo.kefu_code,
-      //   kefu_id: this.userInfo.kefu_id,
-      // });
     },
     getCurrentList() {
       this.loading = true; 
@@ -324,6 +330,7 @@ export default {
             });
           }
            this.getUserChatLog({
+             page:1,
               username: this.currentUser.activtyeUsername,
               kefu_code: this.userInfo.kefu_code,
               kefu_id: this.userInfo.kefu_id,
@@ -333,12 +340,11 @@ export default {
         }
       });
     },
-    getUserChatLog(params) {
-      this.logLoading = true
-      this.currentChatLogList = [];
+    getUserChatLog(params,callback) {
+      this.isMore = true
       getUserChatLog(params).then((result) => {
-        this.logLoading =false
-        this.currentChatLogList = result.data.map((item) => {
+        this.count = result.count
+        let array = result.data.map((item) => {
           if (item.type == 0) {
             item.content
               ? (item.content = conversionFace(item.content))
@@ -348,15 +354,27 @@ export default {
           }
           return item;
         })
-        this.loading = false;
+        if(this.page > 1){
+             this.currentChatLogList.unshift(...array)
+            callback &&  callback()
+              setTimeout(()=>{
+              this.isMore = false
+             },200)
+           }else {
+              this.currentChatLogList  = array
+              this.isMore = false
+           }
+        this.loading = false
         this.SET_CURRENT_CHAT_LIST(this.arrayExists(
           this.currentChatList,
               params.username,
               false
         ))    
       })
-      .catch(()=>{
-          this.logLoading =false
+      .catch((err)=>{
+        setTimeout(()=>{
+                this.isMore = false
+             },200)
         })
     },
     closeConversation(val) {
@@ -364,7 +382,7 @@ export default {
         let id = null
         let userNmae=''
         if(val == 'col'){
-        id = that.currentUser.activtyUid
+          id = that.currentUser.activtyUid
           userNmae = that.currentUser.activtyeUsername
         }else {
           id= that.currentChatList[that.currentId].uid
@@ -381,6 +399,7 @@ export default {
                 kefu_code: that.userInfo.kefu_code,
               }).then((result) => {
               if (result.code == 0) {
+                that.currentId =null
                 let params = {
                   from_avatar: that.userInfo.kefu_avatar,
                   from_name: that.userInfo.kefu_name,
@@ -541,20 +560,34 @@ export default {
       this.searchKeyword=''
       this.isSearchList=false,
       this.sendMessage(val,0) 
-    }
+    },
+     getLog(e,fn){ 
+      this.isMore = true
+      this.page ++
+      let scrollH = this.$refs.chatBox.$refs.chatMain.scrollHeight
+      this.getUserChatLog( {
+         page:this.page,
+          username: this.currentUser.activtyeUsername,
+          kefu_code: this.userInfo.kefu_code,
+          kefu_id: this.userInfo.kefu_id,
+        },
+        ()=>{
+          setTimeout(()=>{
+            e.target.scrollTo(0,  e.target.scrollHeight -  (scrollH  + 30 ) )
+            }) 
+          })
+    },
   }, 
-  created() {},
   mounted() {
     let oldArr = JSON.parse(JSON.stringify(this.currentChatList))
     this.getCurrentList()
-    let _this = this;
-    document.addEventListener("click", function (e) {
+    document.addEventListener("click",  (e)=> {
       // 下面这句代码是获取 点击的区域是否包含你的菜单，如果包含，说明点击的是菜单以外，不包含则为菜单以内
       let flag = e.target.contains(
         document.getElementsByClassName("menu_close")[0]
       );
       if (flag) return;
-      _this.close = false;
+      this.close = false;
     });
   },
 };

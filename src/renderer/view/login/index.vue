@@ -53,7 +53,6 @@ import { mapActions,mapMutations } from "vuex";
 import {isLocalStorage} from '@/utils/libs'
 export default {
   	name: "Login",
-    components: {},
     data() {
         return {
             ip:'',
@@ -69,8 +68,6 @@ export default {
              url: 'https://server.nikidigital.net'
         };
     },
-    computed: {},
-    watch: {},
     methods: {
         ...mapActions(["handleLogin", "getUserInfo"]),
         ...mapMutations(["SET_USER_INFO"]),
@@ -128,10 +125,6 @@ export default {
         setCookie(name,value){
             // localStorage.setItem(name,value)
             // let exp = new Date();
-            // this.$cookie.set(name, value,Math.round(exp.getTime() / 1000) + 3000 * 24 * 60 * 60);
-
-            // alert(window.location.href)
-            // alert(this.url)
             let Days = 300;
             let exp = new Date();
             let date = Math.round(exp.getTime() / 1000) + Days * 24 * 60 * 60;
@@ -154,11 +147,7 @@ export default {
             //       password:localStorage.getItem("password"), 
             //       shopCode:localStorage.getItem("seller_code"), 
             //     }
-                // this.loginData = {
-                //   account:this.$cookie.get("username"), 
-                //   password:this.$cookie.get("password"), 
-                //   shopCode:this.$cookie.get("seller_code"), 
-                // }
+               
           session.defaultSession.cookies.get({ url: this.url },  (error, cookies)=> {
             if (cookies.length > 0) {
               this.$nextTick(()=>{
@@ -178,10 +167,6 @@ export default {
             // localStorage.removeItem("username")
             // localStorage.removeItem("password")
             // localStorage.removeItem("seller_code")
-
-            // this.$cookie.delete("username")
-            // this.$cookie.delete("password")
-            // this.$cookie.delete("seller_code")
           session.defaultSession.clearStorageData({
             origin: this.url,
             storages: ['cookies']
@@ -220,9 +205,6 @@ export default {
             });
         },
         },
-        
-    created() {
-    }, 
     mounted() {
         this.ip = returnCitySN["cip"]; // ip
         this.$store.commit('SET_USER_IP',{ip:this.ip})

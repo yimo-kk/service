@@ -33,7 +33,6 @@ export default {
     name: "my-project",
     mixins: [common()],
     provide () {
-        // 父组件中通过provide来提供变量，在子组件中通过inject来注入变量。
         return {
         reload: this.reload,
         }
@@ -78,7 +77,7 @@ export default {
         //   let _this = this;
         // //接收主进程版本更新消息
         // this.$electron.ipcRenderer.on("message", (event, arg) => {
-        // console.log(arg,111);
+
         // if ("update-available" == arg.cmd) {
         //    显示升级对话框
         //     _this.dialogVisible = true;

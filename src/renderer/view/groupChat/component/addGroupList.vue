@@ -1,7 +1,10 @@
 <template>
   <div class="add_group_list">
-    <div v-if="isNotGroupList" style="textalign: center">
-      <a-spin tip />
+     <div style="width:200px;paddingBottom:10px">
+      <a-input-search :placeholder="$t('awaitInfo.search')" enter-button @search="onSearch" />
+    </div>
+    <div v-if="isNotGroupList" style="textAlign: center">
+      <a-spin tip='加载中...' />
     </div>
     <a-checkbox-group
       v-else
@@ -26,7 +29,7 @@
             />
           </a-badge>
         </div>
-        <p class="add_group_list_item_username">
+        <p class="add_group_list_item_username dwote">
           {{ scope.username }}
         </p>
       </div>
@@ -36,8 +39,7 @@
 
 <script>
 export default {
-  name: "",
-  components: {},
+  name: "AddGroupList",
   props: {
     selectAddlist: {
       type: Array,
@@ -59,7 +61,6 @@ export default {
       addlist: [],
     };
   },
-  computed: {},
   watch: {
     isAddGroup(newVal) {
       if (!newVal) {
@@ -74,13 +75,15 @@ export default {
     onChangeCheckbox(vals) {
       this.$emit("onChangeCheckbox", vals);
     },
+    onSearch(val){
+      this.$emit('addSearch',val)
+    }
   },
-  created() {},
-  mounted() {},
 };
 </script>
 <style lang='less' scoped>
 .add_group_list {
+  position: relative;
   max-height: 250px;
   overflow: auto;
   &::-webkit-scrollbar {
@@ -102,5 +105,9 @@ export default {
       border-radius: 4px;
     }
   }
+}
+.add_group_list_item_username{
+  font-size: 12px;
+  max-width: 100px;
 }
 </style>

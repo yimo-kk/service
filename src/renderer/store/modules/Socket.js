@@ -232,7 +232,7 @@ const actions = {
                 let list= JSON.parse(JSON.stringify(state.currentChatList))
                 let currentChatList = result.data.map(item=>{
                     list.forEach(val=>{
-                        val.isMultitap ? item.isMultitap = true:item.isMultitap = false
+                        val.isMultitap && val.username === item.username ? item.isMultitap = true:item.isMultitap = false
                     })
                     return item
                 })

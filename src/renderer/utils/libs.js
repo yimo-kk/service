@@ -82,12 +82,12 @@ export function isLocalStorage(key){
     return false
   }
 }
-// 防抖
+// 防抖 防止点多次
 export const DebounceBy = (fn, t) => {
   let delay = t || 500
   let timer
   return function () {
-    let args = arguments;
+    let args = arguments; 
     if (timer) {
       clearTimeout(timer)
     }

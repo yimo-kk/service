@@ -5,13 +5,13 @@
     </div>
     <div class="chat_body">
       <div class="chat_all" ref="chatMain">
-        <!-- <div class="more_chat_log ">
-          <p v-if="true" class="more_log">加载更多</p>
-          <a-spin v-else />
-        </div> -->
+        <div class="more_chat_log ">
+          <a-spin v-if="isMore"   tip="加载中..."/>
+           
+        </div>
+        <p v-if='(count>50 &&chatLogList.length >= count) && !isMore ' class="more_log">没有更多了...</p>
         <div v-for="(item, index) in chatLogList" :key="index">
           <div v-if="item.forbid" class="forbid">{{item.message}}</div>
-          <!-- <div v-if="true" class="forbid">你已被拉入黑名单，暂时无法发送消息！</div> -->
           <div v-else>
             <div
             class="message_left"
@@ -33,7 +33,7 @@
                 <div v-else-if="item.type === 1" class="pictrue">
                   <img
                     @click="viewImg(item.content || item.message)"
-                    @load='loadImg' 
+                    @load='loadImg'
                     :src="item.content || item.message"
                     alt
                   />
@@ -91,8 +91,9 @@
               <div class="chat_content chat_content_right">
                 <p style="white-space: pre-line;" v-if="item.type === 0">{{ item.content || item.message }}</p>
                 <div v-else-if="item.type === 1" class="pictrue">
+                   
                   <img
-                   @load='loadImg' 
+                  @load='loadImg' 
                     @click="viewImg(item.content || item.message)"
                     :src="item.content || item.message"
                     alt
@@ -192,8 +193,9 @@
         style="height:75px"
         @keydown="enter"
       />
-      <div class="send" @click="sendMessage(sendText, 0)"  :title="`Enter  ${$t('currentInfo.send')}
-          Enter+Ctrl/Shift  ${$t('currentInfo.wrap')}`">
+      <div class="send" @click="sendMessage(sendText, 0)" 
+      :title="`Enter  ${$t('currentInfo.send')}
+Enter+Ctrl/Shift  ${$t('currentInfo.wrap')}`">
         <p :class="['send_btn', sendText.length ? 'activt_btn' : '']" >{{$t('currentInfo.send')}}</p>
       </div>
       <!-- 表情区域 -->
@@ -281,6 +283,10 @@
 </template>
 
 <script>
+import {
+  conversionFace,
+  conversion,
+} from "@/utils/libs.js";
 import Recorder from "js-audio-recorder";
 const recorder = new Recorder({
   sampleBits: 8, // 采样位数，支持 8 或 16，默认是16
@@ -320,6 +326,14 @@ export default {
       type: Number,
       default: 1,
     },
+    isMore:{
+      type:Boolean,
+      default:false
+    },
+    count:{
+      type:Number,
+      default:20
+    }
   },
   components: {
     Audio,
@@ -339,6 +353,7 @@ export default {
       left: 0,
       top: 0,
       selectUser: {},
+      timer:null,
     };
   },
   computed: {
@@ -350,15 +365,27 @@ export default {
     "chatLogList.length": {
       handler(newVal, oldVal) {
         if (newVal !== oldVal) {
-          this.messageDown();
+         this.isMore==false && this.messageDown();
         }
       },
       deep: true,
     },
     sendText(newVal){
-       if (newVal.length >= 128) {
-          this.sendText = newVal.slice(0, 128);
-        }
+       if(!newVal)return
+          var str = conversion(newVal,3333)
+          if (str.length >= 240) {
+            this.$message.error(this.$t('overLimit'))
+            var string = str.slice(0, 240)
+            var arr = string.split('[')
+            arr.forEach((item,index)=>{
+              if(index >0 &&item.indexOf(']') === -1 ){
+                arr.pop()
+              }
+            })
+           this.sendText = conversionFace(arr.join('['))
+         }else {
+          this.sendText = conversionFace(str)
+         }
     },
     logLoading(val) {
       this.loading = JSON.parse(JSON.stringify(val));
@@ -428,15 +455,18 @@ export default {
     },
     // 来的消息显示在最下面
     messageDown() {
-      let that = this;
-      this.chatLogList.length &&
-      this.$nextTick(() => {
-          that.$refs.chatMain.scrollTop = that.$refs.chatMain.scrollHeight;
-      });
+     if( (this.chatLogList.length &&  this.isMore==false) ){
+       this.$nextTick(()=>{
+          this.$refs.chatMain.scrollTop = this.$refs.chatMain.scrollHeight
+       })
+     }
+         
+      
     },
     // 图片显示延迟显示
     loadImg(){
-       this.messageDown()
+
+     this.isMore == false && this.messageDown()
     },
     // 播放语音
     playRecord(stream, index,bool) {  
@@ -649,20 +679,35 @@ export default {
       this.$emit("removeblack",params);
     },
     
-
+   
   },
-  created() {},
   mounted() {
-    this.messageDown();
-    let that = this;
-    document.addEventListener("click", function (e) {
+    // this.timer = setInterval( () =>{
+        // if (document.readyState === 'complete') {
+        //      this.messageDown(); // 将聊天框滚轮拉到最底部
+        //     window.clearInterval(this.timer)
+        // }
+    // },200)
+    document.addEventListener("click",  (e)=> {
       // 下面这句代码是获取 点击的区域是否包含你的菜单，如果包含，说明点击的是菜单以外，不包含则为菜单以内
       let flag = e.target.contains(
         document.getElementsByClassName("click_head_portrait")[0]
       );
       if (flag) return;
-      that.isHeadPortrait = false;
+      this.isHeadPortrait = false;
     });
+        // 滚动到顶部 加载更多
+    let chatDoc = this.$refs.chatMain
+    chatDoc.addEventListener('scroll',(e)=>{
+        if( (e.target.scrollTop === 0 && 
+         e.target.scrollHeight >  e.target.offsetHeight) && 
+         !(this.chatLogList.length>= this.count) && !this.isMore
+          ){
+        this.$emit('getLog',e)
+      }
+    })
+
+
   },
 };
 </script>
@@ -700,14 +745,17 @@ export default {
       text-align: center;
     }
     .more_chat_log{
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      .more_log{
-        cursor: pointer;
-      }
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translate(-50%,0);
     }
+    .more_log{
+        cursor: pointer;
+        font-size: 12px;
+        color: #ccc;
+        text-align: center;
+      }
   }
 
   .message_left {
@@ -954,5 +1002,12 @@ export default {
   left: 0;
   z-index: 3333;
   background-color: rgba(0, 0, 0, 0.5);
+}
+/deep/.ant-input {
+     border: none
+ }
+
+/deep/.ant-input:focus {
+    box-shadow: none;
 }
 </style>

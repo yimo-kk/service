@@ -1,4 +1,5 @@
 module.exports = {
+  overLimit:'The content of the sent message exceeds the sending length', 
   downloadFile:'Download successfully',
   addGroupMember:'Please select a group member to operate!',
   selectGroupMember:'Please select a group member to operate!',
@@ -6,7 +7,7 @@ module.exports = {
   selectImg:'Please select the picture correctly!',
   NewNews:'New message received',
   transferSuccess:'Successful transfer',
-  fileExpired:'The file has expired!',
+  fileExpired:'The file has expired!', 
   noVoice:'The current environment does not support voice',
   timeShort:'Talk time is too short',
   permission:'No recording permission!',

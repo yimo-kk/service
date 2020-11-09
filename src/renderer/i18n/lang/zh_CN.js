@@ -1,4 +1,5 @@
 module.exports = {
+  overLimit:'发送的消息内容超出发送长度啦', 
   downloadFile:'下载成功',
   selectGroupMember:'请选择操作的群成员！',
   addGroupMember:'请选择添加成员！',

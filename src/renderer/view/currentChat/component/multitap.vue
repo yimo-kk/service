@@ -62,7 +62,6 @@
 <script>
 export default {
   name: "Multitap",
-  components: {},
   props: {
     technologyList: {
       type: Array,
@@ -116,8 +115,6 @@ export default {
       ],
     };
   },
-  computed: {},
-  watch: {},
   methods: {
     callback(){},
     relink(data){
@@ -130,13 +127,10 @@ export default {
         cancelText:this.$t('cancel'),
         onOk() {
           that.$emit("confirm", data);
-          that.isMultitap = false;
           }
         })
     }
   },
-  created() {},
-  mounted() {},
 };
 </script>
 <style lang='less' scoped>
