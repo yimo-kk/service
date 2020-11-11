@@ -40,14 +40,14 @@
       <service-header  @setStatus='setStatus'></service-header>
     </a-layout-header>
     <a-layout class="body_content">
-      <div v-if="selectedKey === 'AwaitChat'" style="height:100%;">
+      <div v-show="selectedKey === 'AwaitChat'" style="height:100%;">
         <AwaitChat @selectMenu="selectMenu"></AwaitChat>
       </div>
-      <div v-if="selectedKey === 'CurrentChat'" style="height:100%">
-        <CurrentChat @goAwaitChat="selectMenu"></CurrentChat>
+      <div v-show="selectedKey === 'CurrentChat'" style="height:100%">
+        <CurrentChat ref="CurrentChat" @goAwaitChat="selectMenu"></CurrentChat>
       </div>
       <div v-if="selectedKey === 'GroupChat'" style="height:100%">
-        <GroupChat></GroupChat>
+        <GroupChat ref="GroupChat"></GroupChat>
       </div>
     </a-layout>
   </a-layout>
@@ -131,12 +131,23 @@ export default {
     },
    },
   watch: {
+    // 切换选项也需要调用，没改变watch监听不到
+    selectedKey(newVal){
+      newVal === 'CurrentChat' && (this.$refs.CurrentChat.getUserChatLog({
+             page:1,
+              username: this.currentUser.activtyeUsername,
+              kefu_code: this.userInfo.kefu_code,
+              kefu_id: this.userInfo.kefu_id,
+            }))
+    },
     chatList:{
       handler(newVal){  
         newVal.length===0 &&  this.SET_ACTIVITY_GROUP({
             activityId: null,
             activityTitle: "",
-            is_invite:1
+            is_invite:null,
+            on_file:0,
+        on_voice:0
           });
       },
       deep:true
@@ -314,6 +325,13 @@ export default {
   mounted() {
     this.updateKefuStatus();
     this.getGroupList({ kefu_id:this.userInfo.kefu_id});
+    // 进入首页需要调用选择中的聊天记录
+    this.$refs.CurrentChat.getUserChatLog({
+              page:1,
+              username: this.currentUser.activtyeUsername,
+              kefu_code: this.userInfo.kefu_code,
+              kefu_id: this.userInfo.kefu_id,
+            })
     // 等待接入
     this.getAwaitList({
       seller_code: this.userInfo.seller_code,

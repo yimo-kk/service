@@ -217,6 +217,10 @@ export default {
              kefu_code:this.userInfo.kefu_code
            });
           data.type === 3 && (data.message.play = false);
+          if(data.type === 2) {
+            data.progress = false
+            data.progress_num = 0
+          }
           data.type === 0 &&
             (data.message = conversionFace(data.content || data.message));
           this.currentChatLogList.push(data);
@@ -315,12 +319,13 @@ export default {
     getCurrentList() {
       this.loading = true; 
       this.getCurrentListData().then((result) => {
+        this.loading = false
         if (this.currentChatList.length) {
           if (
             this.currentUser.activtyUid &&
             this.currentUser.activtyeUsername
           ) { 
-            this.currentChatLogList = [];
+            this.currentChatLogList = []; 
           } else { 
             this.SET_CURRENT_USER({
               activtyUid: this.currentChatList[0].uid,
@@ -329,12 +334,12 @@ export default {
               area:this.currentChatList[0].area
             });
           }
-           this.getUserChatLog({
-             page:1,
-              username: this.currentUser.activtyeUsername,
-              kefu_code: this.userInfo.kefu_code,
-              kefu_id: this.userInfo.kefu_id,
-            });
+          //  this.getUserChatLog({
+          //    page:1, 
+          //     username: this.currentUser.activtyeUsername,
+          //     kefu_code: this.userInfo.kefu_code,
+          //     kefu_id: this.userInfo.kefu_id,
+          //   });
         } else {
           this.loading = false;
         }
@@ -344,12 +349,17 @@ export default {
       this.isMore = true
       getUserChatLog(params).then((result) => {
         this.count = result.count
+        console.log(result)
+        // debugger
         let array = result.data.map((item) => {
           if (item.type == 0) {
             item.content
               ? (item.content = conversionFace(item.content))
               : (item.message = conversionFace(item.message));
-          } else if (item.type == 3) {
+          } else if(item.type === 2) {
+            item.progress = false
+            item.progress_num = 0
+          }else if (item.type == 3) {
             item.play = false;
           }
           return item;
@@ -357,14 +367,15 @@ export default {
         if(this.page > 1){
              this.currentChatLogList.unshift(...array)
             callback &&  callback()
-              setTimeout(()=>{
+              setTimeout(()=>{ 
               this.isMore = false
              },200)
            }else {
-              this.currentChatLogList  = array
+              this.currentChatLogList = array
               this.isMore = false
            }
-        this.loading = false
+           console.log(this.page)
+           console.log(this.currentChatLogList )
         this.SET_CURRENT_CHAT_LIST(this.arrayExists(
           this.currentChatList,
               params.username,
@@ -444,6 +455,10 @@ export default {
       let sendMessage = JSON.parse(JSON.stringify(my_send));
       type === 3 && (my_send.message.play = false);
       type === 0 && (sendMessage.message = conversion(my_send.message));
+      if(type === 2) {
+            my_send.progress = false
+            my_send.progress_num = 0
+          }
       this.currentChatLogList.push(my_send);
       this.$socket.emit("message", sendMessage);
     },
@@ -716,7 +731,7 @@ export default {
 }
 .current_list{
   &:hover{
-    background-color: #ccc;
+    background-color: #d9d9d9;
   }
 }
 </style>

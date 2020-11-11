@@ -1,12 +1,17 @@
 
   import {handleLogin,getUserInfo} from '@/api/login.js'
   const state = {
-    userInfo: {}
+    userInfo: {},
+    userIp:{
+    }
   }
   const mutations = {
     SET_USER_INFO(state,val){
       state.userInfo = val
     },
+    SET_USER_IP(state, data){
+      state.userIp = data
+  },
   }
   const actions = { 
      // 登录
@@ -26,7 +31,9 @@
       return new Promise(async (resolve, reject) => {
         await getUserInfo(accessToken,refreshToken)
           .then(result => {
-            // commit('SET_USER_INFO',result.data)
+            //  commit('SET_USER_INFO',result.data)
+            //  this.ip = returnCitySN["cip"]; // ip
+            // commit('SET_USER_IP',{ip:result.data.kefu_ip})
             resolve(result);
           })
           .catch(err => {

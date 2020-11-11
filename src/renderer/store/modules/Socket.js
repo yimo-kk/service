@@ -15,7 +15,9 @@ const state = {
     activityGroup: {
         activityId: null,
         activityTitle: "", 
-        is_invite:1
+        is_invite:null,
+        on_file:0,
+        on_voice:0
     },
     userMessage: {}, // 客服收到用户消息
     relinkMessage: {}, // 客服收到转接消息
@@ -24,11 +26,11 @@ const state = {
     chatList: [],//群列表
     awaitList:[], // 等待接入
     currentChatList:[], // 正在聊天列表
-    userIp:{},
     groupBlack:{},//全局拉黑提示
     userBlack:{}, //个人拉黑提示
     groupForbid:{}, //禁言全局
     userForbid:{}, //禁言个人
+    kickGroup:{},
     kefuStatus:{},
     oldUser:{},//上次接待的人
 }
@@ -81,7 +83,6 @@ const mutations = {
         state.relinkMessage = data
     },
     SOCKET_refuse: (state, data) => {
-        console.log(data,3333)
         state.refuseMessage = data
     },
     SOCKET_prompt:(state, data)=>{
@@ -97,6 +98,36 @@ const mutations = {
     //群消息
     SOCKET_groupMsg: (state, data) => {
         state.groupMessage = data
+    },
+    // 群更新
+    SOCKET_saveGroup:(state, data)=>{
+        // 有这个群数据改变了
+        let arr = JSON.parse(JSON.stringify(state.chatList))
+       let list =  arr.map(item=>{
+           if( item.group_id === data.group_id ){
+               let {group_avatar,group_name,is_invite,on_file,on_voice} = data
+               item.group_avatar = group_avatar
+               item.group_name = group_name
+               item.is_invite = is_invite
+               item.on_file = on_file
+               item.on_voice = on_voice
+           }
+           return item
+        })
+        if(state.activityGroup.activityId === data.group_id){
+            state.activityGroup.activityTitle= data.activityTitle
+            state.activityGroup.is_invite=data. is_invite
+            state.activityGroup.on_file= data. on_file
+            state.activityGroup.on_voice= data. on_voice
+            }
+        state.chatList = list
+        
+
+    },
+    // 新增群
+    SOCKET_addGroup(state, data){
+        data.noReadNum=0
+        state.chatList.push(data)
     },
     //新待接
     SOCKET_addQueue: (state, data) => {
@@ -125,6 +156,29 @@ const mutations = {
     // 提示个人解禁
     SOCKET_removeforbid: (state, data) => {
         state.userForbid = data
+    },
+    // 踢出群
+    SOCKET_kickGroup:(state, data)=>{
+        state.kickGroup = data
+    },
+    // 删除群
+    SOCKET_delGroup:(state, data)=>{
+        let list = JSON.parse(JSON.stringify(state.chatList))
+        let arr =[]
+        list.forEach((item)=>{
+            item.group_id !== data.group_id && arr.push(item)
+        })
+        state.chatList = arr
+        if(state.activityGroup.activityId === data.group_id){
+            state.activityGroup =  {
+                activityId: state.chatList[0].group_id,
+                activityTitle: state.chatList[0].group_name, 
+                is_invite:state.chatList[0].is_invite,
+                on_file:state.chatList[0].on_file,
+                on_voice:state.chatList[0].on_voice
+            }
+        }
+        
     },
     // 当前登录状态
     SOCKET_setStatus:(state, data) => { 
@@ -172,9 +226,7 @@ const mutations = {
         },
         state.currentChatList.push(data)
     },
-    SET_USER_IP(state, data){
-        state.userIp = data
-    },
+    
     RESETVUEX(state){
         state.currentUser.activtyUid= null
         state.currentUser.activtyeUsername=""
@@ -182,7 +234,7 @@ const mutations = {
         state.currentUser.area=''
         state.activityGroup.activityId= null
         state.activityGroup. activityTitle= ""
-        state.activityGroup.is_invite=1
+        state.activityGroup.is_invite=null
         state.userMessage= {} // 客服收到用户消息
         state.relinkMessage= {} // 客服收到转接消息
         state.refuseMessage= {} // 转接是否被接受
@@ -194,6 +246,7 @@ const mutations = {
         state.groupBlack={}//全局拉黑提示
         state.userBlack={}//个人拉黑提示
         state.groupForbid={} //禁言全局
+        state.kickGroup={} //踢出群全局
         state.userForbid={} //禁言个人 
         state.kefuStatus={}   
         state.oldUser={}//上次接待的人

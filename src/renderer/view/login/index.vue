@@ -88,7 +88,7 @@ export default {
                   this.clearCookies()
                 } 
                 this.loading = true;
-                params.login_ip=this.ip 
+                // params.login_ip=this.ip 
                 this.handleLogin(params).then((result) => {
                         if (result.code === 0) {
                             this.$message.success(result.msg);
@@ -206,8 +206,7 @@ export default {
         },
         },
     mounted() {
-        this.ip = returnCitySN["cip"]; // ip
-        this.$store.commit('SET_USER_IP',{ip:this.ip})
+      
         this.getCookies()
         
     },

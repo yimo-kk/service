@@ -48,9 +48,9 @@ function createWindow() {
     backgroundColor: "#ccc",
     useContentSize: true, 
     width: 1020,
-    height: 563,
+    height: 600,
     minWidth: 1020,
-    minHeight: 563,
+    minHeight: 600,
     webPreferences: {
       webSecurity: false, // 是否禁用浏览器的跨域安全特性
       nodeIntegration: true, // 是否完整支持node 
@@ -102,12 +102,65 @@ function createWindow() {
     // 所有窗口都将立即被关闭，而不询问用户，而且 before-quit 和 will-quit 事件也不会被触发。
     app.exit();
   });
+  
+  let folderPath=''
+  let downloadIndex = null
+  ipcMain.on('download', (evt, {url,downloadFolder,index}) =>{
+    console.log(url,downloadFolder,index,33333)
+    downloadIndex = index
+    folderPath = downloadFolder;
+    mainWindow.webContents.downloadURL(url);
+})
+ 
+ 
   // ipcMain.on("browser_center", () => {
   //   mainWindow.center()
   // });
   // 尝试更新
   // updateHandle()
+  // 下载文件
+  mainWindow.webContents.session.on('will-download', (event, item, webContents) => {
+    let path = folderPath+`\\${item.getFilename()}`
+    console.log(path)
+    //设置文件存放位置
+    item.setSavePath(path); 
+  //   item.on('updated', (event, state) => {
+  //     if (state === 'interrupted') {
+  //       // 下载被中断
+  //       console.log('Download is interrupted but can be resumed')
+  //     } else if (state === 'progressing') { //下载中
+  //       if (item.isPaused()) { //下载暂停
+  //         console.log('Download is paused')
+  //       } else {
+  //         // 下载中 
+  //         try {
+  //           mainWindow.webContents.send("progress",{index:downloadIndex,progress_num:item.getReceivedBytes()/item.getTotalBytes() }); 
+  //         } catch (error) {
+  //           console.log(error)
+  //         }
+  //       }
+  //     }
+  // })
+  item.once('done', (event, state) => {
+    if (state === 'completed') {
+      // 下载成功
+      console.log(`Download success`)
+      mainWindow.webContents.send("downloadSuccess",'success');
+    }
+    //  else if(state === 'interrupted'){
+    //   console.log('err')
+    //   mainWindow.webContents.send("downloadSuccess",'error');
+    // }
+    else {
+      console.log(`Download failed: ${state}`)
+      mainWindow.webContents.send("downloadSuccess",'error');
+    }
+  })
+  })
 }
+
+
+
 // 设置托盘
 function implementSystemTray() {
   let timer = null,

@@ -47,8 +47,8 @@
             @removeforbid="sendForbidMessage"
             @uploadFile='uploadFile'
             :isAdmin="isAdmin"
-            :on_file='on_file'
-            :on_voice='on_voice'
+            :on_file='activityGroup.on_file'
+            :on_voice='activityGroup.on_voice'
             :isMore='isMore'
             :count='count'
             @getLog='getLog'
@@ -213,6 +213,19 @@
         @addSearch='getNotGroupUsersList'
       ></addGroupList>
     </a-modal>
+    <a-modal
+    :title="$t('groupInfo.addBlackRemark')"
+      v-model="isAddBlack"
+      @ok="handleAddBlack"
+      :okText="$t('determine')"
+      :cancelText="$t('cancel')"
+      >
+      <a-textarea
+      :placeholder="$t('groupInfo.reason')"
+      v-model="blackRemark"
+      :auto-size="{ minRows: 2, maxRows: 6 }"
+    />
+    </a-modal>
   </div>
 </template>
 
@@ -264,10 +277,12 @@ export default {
       selectAddList: [],
       addGroupListUser: [],
       isAdmin: false,
-      on_file: 0,
-      on_voice: 0,
       page:1,
       count:0,
+      isAddBlack:false,
+      blackRemark:'',
+      blackdata:null,
+
     };
   },
   computed: {
@@ -288,6 +303,9 @@ export default {
     },
     userForbid() {
       return this.$store.state.Socket.userForbid;
+    },
+    kickGroup() {
+      return this.$store.state.Socket.kickGroup;
     },
     userInfo(){
       return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
@@ -336,6 +354,18 @@ export default {
       },
       deep: true,
     },
+    userForbid: {
+      handler(newVal) {
+        let data = JSON.parse(JSON.stringify(newVal));
+        data.forbid = "forbid";
+        this.chatLogList.push(data);
+        this.getGroupMemberList({
+          group_id: this.activityGroup.activityId,
+          seller_code: this.userInfo.seller_code,
+        });
+      },
+      deep: true,
+    },
     // 禁言
     groupForbid: {
       handler(newVal) {
@@ -349,9 +379,10 @@ export default {
       },
       deep: true,
     },
-    userForbid: {
+     // 踢出群
+    kickGroup: {
       handler(newVal) {
-        let data = JSON.parse(JSON.stringify(newVal));
+       let data = JSON.parse(JSON.stringify(newVal));
         data.forbid = "forbid";
         this.chatLogList.push(data);
         this.getGroupMemberList({
@@ -361,6 +392,17 @@ export default {
       },
       deep: true,
     },
+    activityGroup:{
+      handler(newVal){
+         this.getGroupChatLog({
+              page:1,
+              group_id:newVal.activityId,
+              kefu_id: this.userInfo.kefu_id,
+              kefu_code: this.userInfo.kefu_code,
+            });
+      },
+      deep:true
+    }
   },
 
   methods: {
@@ -379,7 +421,7 @@ export default {
         kefu_code: this.userInfo.kefu_code,
         state: 1,
         type: type,
-        from_ip: this.$store.state.Socket.userIp.ip,
+        from_ip: this.$store.state.Login.userIp.ip,
       };
       let sendMessage = JSON.parse(JSON.stringify(my_send));
       type === 0 && (sendMessage.message = conversion(my_send.message));
@@ -415,20 +457,23 @@ export default {
       }
     },
     selectGroup(data) {
+      this.isMore = true
       if (this.activityGroup.activityId === data.group_id) return;
       this.SET_ACTIVITY_GROUP({
         activityId: data.group_id,
         activityTitle: data.group_name,
         is_invite: data.is_invite,
+        on_file:data.on_file,
+        on_voice:data.on_voice
       });
       this.chatLogList = [];
       this.page = 1
-      this.getGroupChatLog({
-        page:1,
-        group_id: data.group_id,
-        kefu_code: this.userInfo.kefu_code,
-        kefu_id: this.userInfo.kefu_id,
-      });
+      // this.getGroupChatLog({
+      //   page:1,
+      //   group_id: data.group_id,
+      //   kefu_code: this.userInfo.kefu_code,
+      //   kefu_id: this.userInfo.kefu_id,
+      // });
 
       if (this.$store.state.Socket.chatList.length) {
         let chatList = this.arrayExists(
@@ -449,8 +494,8 @@ export default {
       getGroupChatLog(data)
         .then((result) => {
           this.count = result.count
-          this.on_file =result.group.on_file?result.group.on_file:0
-          this.on_voice=result.group.on_voice?result.group.on_voice:0
+          // this.on_file =result.group.on_file?result.group.on_file:0
+          // this.on_voice=result.group.on_voice?result.group.on_voice:0
           this.isAdmin = result.isAdmin;
          let array = result.data.map((item) => {
             if (item.type == 0) {
@@ -529,7 +574,7 @@ export default {
     },
     //禁言
     stopSpeak(arr) {
-      this.$socket.emit("message", {
+      this.$socket.emit("message", { 
         cmd: "forbid",
         seller_code: this.userInfo.seller_code,
         group_id: this.activityGroup.activityId,
@@ -589,18 +634,26 @@ export default {
       });
       this.addBlacklist(arr);
     },
-    addBlacklist(data) {
+    handleAddBlack(){
       let params = {
         cmd: "black",
+        remarks:this.blackRemark,
         oper_kefu_id: this.userInfo.kefu_id,
         seller_code: this.userInfo.seller_code,
         group_id: this.activityGroup.activityId,
-        users: data,
+        users: this.blackdata,
         from_name: this.userInfo.kefu_name,
       };
       this.$socket.emit("message", params);
       this.handleGroupUser = [];
+      this.blackRemark=''
+        this.blackdata =null
+      this.isAddBlack = false
       this.checkedList = [];
+    },
+    addBlacklist(data) {
+      this.isAddBlack= true
+      this.blackdata = data
     },
     // 解除黑名单
     removeblack() {
@@ -634,17 +687,25 @@ export default {
       });
     },
     executionKickOut(data) {
-      kickUsersGroup({
-        group_id: this.activityGroup.activityId,
-        users: data,
-      }).then((result) => {
-        this.$message.success(result.msg);
+      this.$socket.emit('message', {
+            group_id: this.activityGroup.activityId,
+            kefu_name:this.userInfo.kefu_name,
+            users:data,
+            seller_code: this.userInfo.seller_code,
+            cmd:'kick-group'
+        });
         this.handleGroupUser = [];
         this.getGroupMemberList({
           group_id: this.activityGroup.activityId,
           seller_code: this.userInfo.seller_code,
         });
-      });
+
+
+      // kickUsersGroup({
+      //   group_id: this.activityGroup.activityId,
+      //   users: data,
+      // }).then((result) => {
+      // });
       this.checkedList=[]
     },
     getNotGroupUsersList(val='') {
@@ -753,6 +814,8 @@ export default {
               activityId: this.$store.state.Socket.chatList[0].group_id,
               activityTitle: this.$store.state.Socket.chatList[0].group_name,
               is_invite: this.$store.state.Socket.chatList[0].is_invite,
+              on_file: this.$store.state.Socket.chatList[0].on_file,
+              on_voice: this.$store.state.Socket.chatList[0].on_voice,
             });
             let arr = JSON.parse(
               JSON.stringify(this.$store.state.Socket.chatList)
@@ -771,18 +834,45 @@ export default {
               JSON.stringify(this.$store.state.Socket.chatList)
             );
             let list = arr.map((item) => {
-              item.group_id === this.activityGroup.activityId &&
-                (item.noReadNum = 0);
+              if(item.group_id === this.activityGroup.activityId){
+                item.noReadNum = 0
+               if(
+                 item.activityTitle !==this.activityGroup.activityTitle||
+                 item.is_invite !==this.activityGroup.is_invite||
+                 item.on_file !==this.activityGroup.on_file||
+                 item.on_voice !==this.activityGroup.on_voice
+                ){
+                  this.SET_ACTIVITY_GROUP({
+                    activityId: this.activityGroup.activityId,
+                  activityTitle:item.activityTitle,
+                  is_invite: item.is_invite,
+                  on_file: item.on_file,
+                  on_voice: item.on_voice,
+                })
+               }
+              }
+                
               return item;
             });
             this.SET_CHAT_LIST(list);
             this.chatLogList = [];
-            this.getGroupChatLog({
-              page:1,
-              group_id: this.activityGroup.activityId,
-              kefu_id: this.userInfo.kefu_id,
-              kefu_code: this.userInfo.kefu_code,
-            });
+            // this.getGroupChatLog({
+            //   page:1,
+            //   group_id: this.activityGroup.activityId,
+            //   kefu_id: this.userInfo.kefu_id,
+            //   kefu_code: this.userInfo.kefu_code,
+            // });
+            // this.$store.state.Socket.chatList.forEach(item=>{
+            //   if(item.is_invite != this.activityGroup.is_invite){
+            //    this.SET_ACTIVITY_GROUP({
+            //       activityId: this.activityGroup.activityId,
+            //       activityTitle: this.activityGroup.activityTitle,
+            //       is_invite: item.is_invite,
+            //       on_file: this.activityGroup.on_file,
+            //       on_voice: this.activityGroup.on_voice,
+            //     });
+            //   }
+            // })
           }
         }
       })
@@ -816,7 +906,7 @@ export default {
 .hover_item {
   padding: 5px;
   &:hover {
-    background-color: #ccc;
+    background-color: #d9d9d9;
   }
 }
 
@@ -927,7 +1017,7 @@ export default {
 }
 .other {
   overflow: auto;
-  max-height: 150px;
+  max-height: 130px;
   &::-webkit-scrollbar {
     width: 8px;
     /*高宽分别对应横竖滚动条的尺寸*/

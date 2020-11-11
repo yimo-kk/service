@@ -1,16 +1,16 @@
 <template>
   <div class="chat">
-    <div class="loading" v-show="loading">
+    <!-- <div class="loading" v-show="loading">
       <a-spin></a-spin>
-    </div>
+    </div> -->
     <div class="chat_body">
       <div class="chat_all" ref="chatMain">
         <div class="more_chat_log ">
-          <a-spin v-if="isMore"   tip="加载中..."/>
+          <a-spin v-if="isMore"   :tip="$t('loading')"/>
            
         </div>
-        <p v-if='(count>50 &&chatLogList.length >= count) && !isMore ' class="more_log">没有更多了...</p>
-        <div v-for="(item, index) in chatLogList" :key="index">
+        <p v-if='(count>50 &&chatLogListData.length >= count) && !isMore ' class="more_log">{{$t('noMore')}}</p>
+        <div v-for="(item, index) in chatLogListData" :key="index">
           <div v-if="item.forbid" class="forbid">{{item.message}}</div>
           <div v-else>
             <div
@@ -29,7 +29,7 @@
                 item.from_name
               }}</span>
               <div class="chat_content chat_content_left">
-                <p  style="white-space: pre-line;" v-if="item.type === 0">{{ item.content || item.message }}</p>
+                <p  style="white-space: pre-line;word-break: break-word;" v-if="item.type === 0">{{ item.content || item.message }}</p>
                 <div v-else-if="item.type === 1" class="pictrue">
                   <img
                     @click="viewImg(item.content || item.message)"
@@ -41,13 +41,13 @@
                 <div
                   :title="$t('download')"
                   v-else-if="item.type === 2"
-                  class="flex_up_down_center"
                   style="padding-left: 10px; cursor: pointer"
                   @click="
-                    downloadFile(item.content || item.message, item.file_alias)
+                    downloadFileE(item.content || item.message, item.file_alias,index,item.progress)
                   "
                 >
-                  <div class="file_name" style="alignItems: flex-start">
+                  <div class="flex_up_down_center">
+                    <div class="file_name" style="alignItems: flex-start">
                     <span style="color: #000">{{
                       (item.message && item.message.filename) || item.file_alias
                     }}</span>
@@ -61,6 +61,8 @@
                       style="color: #b18904; fontSize: 50px"
                     ></customIcon>
                   </p>
+                  </div>
+                  <a-progress v-if="item.progress" :percent="item.progress_num" size="small" />
                 </div>
                 <div v-else-if="item.type === 3">
                   <Audio
@@ -89,7 +91,7 @@
                 userInfo.kefu_name
               }}</span>
               <div class="chat_content chat_content_right">
-                <p style="white-space: pre-line;" v-if="item.type === 0">{{ item.content || item.message }}</p>
+                <p style="white-space: pre-line;word-break: break-word;" v-if="item.type === 0">{{ item.content || item.message }}</p>
                 <div v-else-if="item.type === 1" class="pictrue">
                    
                   <img
@@ -99,14 +101,13 @@
                     alt
                   />
                 </div>
+                 <!-- downloadFile(item.content || item.message, item.file_alias) -->
                 <div
                   :title="$t('download')"
                   v-else-if="item.type === 2"
                   class="flex_up_down_center"
                   style="paddingRight: 10px; cursor: pointer"
-                  @click="
-                    downloadFile(item.content || item.message, item.file_alias)
-                  "
+                  @click="downloadFileE(item.content || item.message, item.file_alias,index,item.progress)"
                 >
                   <p style="paddingRight: 10px">
                     <customIcon
@@ -283,6 +284,8 @@ Enter+Ctrl/Shift  ${$t('currentInfo.wrap')}`">
 </template>
 
 <script>
+const { dialog } = require('electron').remote
+const path = require('path')
 import {
   conversionFace,
   conversion,
@@ -299,17 +302,17 @@ import Audio from "./audio";
 export default {
   name: "ChatBox",
   props: {
-    isName: {
+    isName: { 
       type: Boolean,
       default: true,
     },
     chatLogList: {
       type: Array,
-      default() {
-        return [];
-      },
+      // default() {
+      //   return [];
+      // },
     },
-    logLoading: Boolean,
+    // logLoading: Boolean,
     isHeadImg: {
       type: Boolean,
       default: false,
@@ -340,7 +343,8 @@ export default {
   },
   data() {
     return {
-      loading: JSON.parse(JSON.stringify(this.logLoading)),
+      chatLogListData:JSON.parse(JSON.stringify(this.chatLogList)),
+      loading: false,
       faceShow: false,
       faceList: [],
       sendText: "",
@@ -354,6 +358,7 @@ export default {
       top: 0,
       selectUser: {},
       timer:null,
+      isDownload:false
     };
   },
   computed: {
@@ -367,8 +372,15 @@ export default {
         if (newVal !== oldVal) {
          this.isMore==false && this.messageDown();
         }
-      },
+      }, 
       deep: true,
+    },
+    chatLogList:{
+      handler(newVal,old){
+        this.chatLogListData = newVal
+        this.isMore==false && this.messageDown();
+      },
+      deep:true
     },
     sendText(newVal){
        if(!newVal)return
@@ -387,9 +399,9 @@ export default {
           this.sendText = conversionFace(str)
          }
     },
-    logLoading(val) {
-      this.loading = JSON.parse(JSON.stringify(val));
-    },
+    // logLoading(val) {
+    //   this.loading = JSON.parse(JSON.stringify(val));
+    // },
   },
   methods: {
     enter(event) {
@@ -455,7 +467,7 @@ export default {
     },
     // 来的消息显示在最下面
     messageDown() {
-     if( (this.chatLogList.length &&  this.isMore==false) ){
+     if( (this.chatLogListData.length &&  this.isMore==false) ){
        this.$nextTick(()=>{
           this.$refs.chatMain.scrollTop = this.$refs.chatMain.scrollHeight
        })
@@ -465,8 +477,9 @@ export default {
     },
     // 图片显示延迟显示
     loadImg(){
-
-     this.isMore == false && this.messageDown()
+      if(!this.isDownload && this.isMore == false){
+       this.messageDown()
+     }
     },
     // 播放语音
     playRecord(stream, index,bool) {  
@@ -474,7 +487,7 @@ export default {
        let audio = this.$refs.audio;
       if(bool){
         audio.src = '';
-        this.chatLogList.forEach((item) => {
+        this.chatLogListData.forEach((item) => {
           if (item.type == 3) {
             item.message ? (item.message.play = false) : (item.play = false);
           }
@@ -492,7 +505,7 @@ export default {
     },
     // 只能播放一个其他全为flase
     recordOne(value) {
-      this.chatLogList.forEach((item, index) => {
+      this.chatLogListData.forEach((item, index) => {
         if (index === value && item.type == 3) {
           item.message ? (item.message.play = true) : (item.play = true);
         } else if (item.type == 3) {
@@ -571,7 +584,7 @@ export default {
     } 
     },
     playEnd() {
-      this.chatLogList.forEach((item) => {
+      this.chatLogListData.forEach((item) => {
         if (item.type == 3) {
           item.message ? (item.message.play = false) : (item.play = false);
         }
@@ -583,29 +596,29 @@ export default {
       this.previewVisible = true;
     },
     // 下载文件
-    downloadFile(content, fileName) {
-      try {
-        let aLink = document.createElement("a");
-        let evt = document.createEvent("HTMLEvents");
-        evt.initEvent("click", true, true); //initEvent 不加后两个参数在FF下会报错  事件类型，是否冒泡，是否阻止浏览器的默认行为
-        if (typeof content !== "string") {
-          aLink.href = content.src;
-          aLink.download = content.filename;
-        } else {
-          aLink.href = content;
-          aLink.download = fileName;
-        }
-        aLink.click();
-        // this.$message.success(this.$t('downloadFile'))
-      } catch (error) {
-        this.$message.error(this.$t('fileExpired'));
-      }
-    },
+    // downloadFile(content, fileName) {
+    //   try {
+    //     let aLink = document.createElement("a");
+    //     let evt = document.createEvent("HTMLEvents");
+    //     evt.initEvent("click", true, true); //initEvent 不加后两个参数在FF下会报错  事件类型，是否冒泡，是否阻止浏览器的默认行为
+    //     if (typeof content !== "string") {
+    //       aLink.href = content.src;
+    //       aLink.download = content.filename;
+    //     } else {
+    //       aLink.href = content;
+    //       aLink.download = fileName;
+    //     }
+    //     aLink.click();
+    //     // this.$message.success(this.$t('downloadFile'))
+    //   } catch (error) {
+    //     this.$message.error(this.$t('fileExpired'));
+    //   }
+    // },
     handleRightImg(e) {
       this.isHeadPortrait = true;
       this.left = e.pageX + 10;
       this.top = e.pageY + 10;
-      this.selectUser = this.chatLogList[e.target.dataset.index];
+      this.selectUser = this.chatLogListData[e.target.dataset.index];
     },
     stopSpeak() { 
        this.isHeadPortrait = false
@@ -660,7 +673,7 @@ export default {
         params=[{username:from_name,  ip:from_ip}]
       }
       this.$emit("addBlacklist", params);
-    },
+    }, 
     // 解除黑名单
     removeblack(){
       this.isHeadPortrait = false
@@ -678,16 +691,57 @@ export default {
       }
       this.$emit("removeblack",params);
     },
-    
-   
+    downloadFileE(content,name,index,bool){
+      if(bool){return}
+      this.isDownload = true
+      dialog.showOpenDialog({
+        //默认路径
+        // defaultPath :"/download",
+        //选择操作，此处是打开文件夹
+       properties: ['openFile', 'openDirectory'],
+        //过滤条件
+        filters: [ { name: 'All', extensions: ['*'] }]
+    },(res)=>{
+        let downloadFolder = res[0]
+        let url
+        if (typeof content !== "string") { 
+          url = content.src;
+        }else {
+          url = content
+        }
+         this.$electron.ipcRenderer.send('download', {
+           downloadFolder,
+           url,
+           index
+         });
+    })
+    },
+    // 下载进度条
+    progress(){
+      this.$electron.ipcRenderer.on("progress",(e,obj)=>{
+        let arr = JSON.parse(JSON.stringify(this.chatLogListData))
+        if(arr.length){
+          arr[obj.index].progress &&  (this.chatLogListData[obj.index].progress =true)
+          arr[obj.index].progress_num = obj.progress_num*100
+        }
+      })
+      this.$electron.ipcRenderer.on("downloadSuccess",(e,val)=>{
+        this.isDownload = false
+         if(val === 'success'){
+            this.$toast({ 
+              icon:'check',
+               content: this.$t('downloadFile')
+                });
+         }else if(val === 'err'){
+          this.$toast({ 
+            icon:'close',
+            content: this.$t('downloadFilErr') });
+         }
+        })
+    }
   },
   mounted() {
-    // this.timer = setInterval( () =>{
-        // if (document.readyState === 'complete') {
-        //      this.messageDown(); // 将聊天框滚轮拉到最底部
-        //     window.clearInterval(this.timer)
-        // }
-    // },200)
+              this.messageDown(); // 将聊天框滚轮拉到最底部
     document.addEventListener("click",  (e)=> {
       // 下面这句代码是获取 点击的区域是否包含你的菜单，如果包含，说明点击的是菜单以外，不包含则为菜单以内
       let flag = e.target.contains(
@@ -701,13 +755,12 @@ export default {
     chatDoc.addEventListener('scroll',(e)=>{
         if( (e.target.scrollTop === 0 && 
          e.target.scrollHeight >  e.target.offsetHeight) && 
-         !(this.chatLogList.length>= this.count) && !this.isMore
+         !(this.chatLogListData.length>= this.count) && !this.isMore
           ){
         this.$emit('getLog',e)
       }
     })
-
-
+    this.progress()
   },
 };
 </script>
@@ -830,7 +883,6 @@ export default {
 
   .message_right {
     display: flex;
-    // align-items: center;
     justify-content: flex-end;
     padding: 10px 0;
   }
@@ -901,7 +953,6 @@ export default {
   &::-webkit-scrollbar {
     width: 4px;
     /*高宽分别对应横竖滚动条的尺寸*/
-    // background-color: #fff;
     border-radius: 4px;
   }
 
@@ -945,7 +996,6 @@ export default {
   transform: translate(-50%, 0);
   padding: 10px;
   line-height: 22px;
-  // background-color: #393d49;
   border-radius: 5px;
   background-color: rgba(0, 20, 35, 0.5);
   color: #fff;

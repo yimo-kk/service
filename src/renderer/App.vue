@@ -2,7 +2,6 @@
     <a-config-provider :locale="locale">
         <div id="app">
             <router-view v-if="isRouterAlive"></router-view>
-
             <!-- <a-modal
                 title="正在更新新版本,请稍候..."
                 width="60%"
@@ -39,8 +38,6 @@ export default {
     }, 
     data () {
         return {
-            ip:'',
-            address:'',
             isRouterAlive: true, // 控制视图是否显示的变量 
             visible:false
         }

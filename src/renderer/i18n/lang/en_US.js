@@ -1,6 +1,9 @@
 module.exports = {
+  loading:'loading...',
+  noMore:'No more...',
   overLimit:'The content of the sent message exceeds the sending length', 
   downloadFile:'Download successfully',
+  downloadFilErr:'download failed',
   addGroupMember:'Please select a group member to operate!',
   selectGroupMember:'Please select a group member to operate!',
   sendErr:'Sending failed, please resend!',
@@ -96,7 +99,9 @@ module.exports = {
     kickOut:'Kick out group chat',
     pull:'Pull people into the group',
     AddGroupMembers:'Add group members',
-    noGroupMembers:'No group members...'
+    noGroupMembers:'No group members...',
+    addBlackRemark:'Reasons for joining the blacklist',
+    reason:'Please enter the reason for being blacklisted'
   },
   login:{
     shopCode:'Merchant ID',

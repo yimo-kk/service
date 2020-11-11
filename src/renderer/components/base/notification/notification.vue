@@ -137,6 +137,7 @@ export default {
     margin-right: 15px;
   }
   .notice-text {
+    font-size: 14px;
     // font-size: inherit;
   }
 }

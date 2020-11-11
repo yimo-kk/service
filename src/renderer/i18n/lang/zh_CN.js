@@ -1,6 +1,9 @@
 module.exports = {
+  loading:'加载中...',
+  noMore:'没有更多了...',
   overLimit:'发送的消息内容超出发送长度啦', 
   downloadFile:'下载成功',
+  downloadFilErr:'下载失败',
   selectGroupMember:'请选择操作的群成员！',
   addGroupMember:'请选择添加成员！',
   sendErr:'发送失败，请重新发送！',
@@ -96,7 +99,9 @@ module.exports = {
     kickOut:'踢出群聊',
     pull:'拉人进群',
     AddGroupMembers:'添加群成员',
-    noGroupMembers:'暂无群成员...'
+    noGroupMembers:'暂无群成员...',
+    addBlackRemark:'拉黑备注（理由）',
+    reason:'请输入拉黑原因'
   },
   login:{
     shopCode:'商家标识',
