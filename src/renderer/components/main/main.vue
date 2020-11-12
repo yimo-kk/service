@@ -40,10 +40,10 @@
       <service-header  @setStatus='setStatus'></service-header>
     </a-layout-header>
     <a-layout class="body_content">
-      <div v-show="selectedKey === 'AwaitChat'" style="height:100%;">
+      <div v-if="selectedKey === 'AwaitChat'" style="height:100%;">
         <AwaitChat @selectMenu="selectMenu"></AwaitChat>
       </div>
-      <div v-show="selectedKey === 'CurrentChat'" style="height:100%">
+      <div v-if="selectedKey === 'CurrentChat'" style="height:100%">
         <CurrentChat ref="CurrentChat" @goAwaitChat="selectMenu"></CurrentChat>
       </div>
       <div v-if="selectedKey === 'GroupChat'" style="height:100%">
@@ -132,14 +132,14 @@ export default {
    },
   watch: {
     // 切换选项也需要调用，没改变watch监听不到
-    selectedKey(newVal){
-      newVal === 'CurrentChat' && (this.$refs.CurrentChat.getUserChatLog({
-             page:1,
-              username: this.currentUser.activtyeUsername,
-              kefu_code: this.userInfo.kefu_code,
-              kefu_id: this.userInfo.kefu_id,
-            }))
-    },
+    // selectedKey(newVal){
+    //   newVal === 'CurrentChat' && (this.$refs.CurrentChat.getUserChatLog({
+    //          page:1,
+    //           username: this.currentUser.activtyeUsername,
+    //           kefu_code: this.userInfo.kefu_code,
+    //           kefu_id: this.userInfo.kefu_id,
+    //         }))
+    // },
     chatList:{
       handler(newVal){  
         newVal.length===0 &&  this.SET_ACTIVITY_GROUP({
@@ -325,13 +325,6 @@ export default {
   mounted() {
     this.updateKefuStatus();
     this.getGroupList({ kefu_id:this.userInfo.kefu_id});
-    // 进入首页需要调用选择中的聊天记录
-    this.$refs.CurrentChat.getUserChatLog({
-              page:1,
-              username: this.currentUser.activtyeUsername,
-              kefu_code: this.userInfo.kefu_code,
-              kefu_id: this.userInfo.kefu_id,
-            })
     // 等待接入
     this.getAwaitList({
       seller_code: this.userInfo.seller_code,

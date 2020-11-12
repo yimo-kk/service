@@ -400,6 +400,8 @@ export default {
               kefu_id: this.userInfo.kefu_id,
               kefu_code: this.userInfo.kefu_code,
             });
+          this.rightNum = 0;
+          this.centerNum = 19;
       },
       deep:true
     }
@@ -468,13 +470,6 @@ export default {
       });
       this.chatLogList = [];
       this.page = 1
-      // this.getGroupChatLog({
-      //   page:1,
-      //   group_id: data.group_id,
-      //   kefu_code: this.userInfo.kefu_code,
-      //   kefu_id: this.userInfo.kefu_id,
-      // });
-
       if (this.$store.state.Socket.chatList.length) {
         let chatList = this.arrayExists(
           this.$store.state.Socket.chatList,
@@ -856,23 +851,6 @@ export default {
             });
             this.SET_CHAT_LIST(list);
             this.chatLogList = [];
-            // this.getGroupChatLog({
-            //   page:1,
-            //   group_id: this.activityGroup.activityId,
-            //   kefu_id: this.userInfo.kefu_id,
-            //   kefu_code: this.userInfo.kefu_code,
-            // });
-            // this.$store.state.Socket.chatList.forEach(item=>{
-            //   if(item.is_invite != this.activityGroup.is_invite){
-            //    this.SET_ACTIVITY_GROUP({
-            //       activityId: this.activityGroup.activityId,
-            //       activityTitle: this.activityGroup.activityTitle,
-            //       is_invite: item.is_invite,
-            //       on_file: this.activityGroup.on_file,
-            //       on_voice: this.activityGroup.on_voice,
-            //     });
-            //   }
-            // })
           }
         }
       })
