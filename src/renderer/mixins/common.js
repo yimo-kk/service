@@ -18,20 +18,16 @@ export default function() {
           this.isPlaying = true;
         }
         let timeOut = setTimeout(() => {
-          this.stop(timeOut);
+          this.currentTime = Date.now();
+          if (this.currentTime - this.lastRunTime >= 980) {
+            if (this.isPlaying) {
+              audio.currentTime = 0;
+              audio.pause();
+              this.isPlaying = false;
+            }
+          } 
+          clearTimeout(timeOut);
         }, 1000);
-      },
-      stop(timeOut) {
-        this.currentTime = Date.now();
-        let audio = document.querySelector("#audio");
-        if (this.currentTime - this.lastRunTime >= 1000) {
-          if (this.isPlaying) {
-            audio.currentTime = 0;
-            audio.pause();
-            this.isPlaying = false;
-          }
-        } 
-        clearTimeout(timeOut);
       },
       notification(data) {
         const myNotification = new Notification(this.$t('NewNews'), {

@@ -291,7 +291,6 @@ export default {
           this.SET_CURRENT_CHAT_LIST_PUSH(result.data)
           this.$message.success(result.msg);
         }
-        console.log(this.currentChatList,5555)
         
       }); 
     },

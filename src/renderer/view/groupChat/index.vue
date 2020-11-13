@@ -282,7 +282,6 @@ export default {
       isAddBlack:false,
       blackRemark:'',
       blackdata:null,
-
     };
   },
   computed: {
@@ -324,6 +323,7 @@ export default {
           data.type === 3 && (data.message.play = false);
           data.type === 0 &&
             (data.message = conversionFace(data.content || data.message));
+          data.create_time = newVal.createtime
           this.chatLogList.push(data);
         }
       },
@@ -406,7 +406,6 @@ export default {
       deep:true
     }
   },
-
   methods: {
     ...mapMutations(["SET_CHAT_LIST", "SET_ACTIVITY_GROUP"]),
     ...mapActions(["getGroupList"]),
@@ -459,8 +458,8 @@ export default {
       }
     },
     selectGroup(data) {
-      this.isMore = true
       if (this.activityGroup.activityId === data.group_id) return;
+       this.isMore = true
       this.SET_ACTIVITY_GROUP({
         activityId: data.group_id,
         activityTitle: data.group_name,
@@ -832,24 +831,29 @@ export default {
               if(item.group_id === this.activityGroup.activityId){
                 item.noReadNum = 0
                if(
-                 item.activityTitle !==this.activityGroup.activityTitle||
+                 item.group_name !==this.activityGroup.activityTitle||
                  item.is_invite !==this.activityGroup.is_invite||
                  item.on_file !==this.activityGroup.on_file||
                  item.on_voice !==this.activityGroup.on_voice
                 ){
                   this.SET_ACTIVITY_GROUP({
                     activityId: this.activityGroup.activityId,
-                  activityTitle:item.activityTitle,
-                  is_invite: item.is_invite,
-                  on_file: item.on_file,
-                  on_voice: item.on_voice,
+                    activityTitle:item.group_name,
+                    is_invite: item.is_invite,
+                    on_file: item.on_file,
+                    on_voice: item.on_voice,
                 })
                }
               }
-                
               return item;
             });
             this.SET_CHAT_LIST(list);
+            this.getGroupChatLog({
+              page:1,
+              group_id:this.activityGroup.activityId,
+              kefu_id: this.userInfo.kefu_id,
+              kefu_code: this.userInfo.kefu_code,
+            });
             this.chatLogList = [];
           }
         }

@@ -10,7 +10,6 @@ import "@/assets/iconfont/iconfont.css";
 import { Icon } from 'ant-design-vue'
 import iconFont from './assets/iconfont/iconfont'
 import './directives/index'
-
 import i18n from './i18n/';
 import VueLazyload from 'vue-lazyload'
 Vue.use(VueLazyload)

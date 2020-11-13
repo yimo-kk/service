@@ -1,8 +1,8 @@
 <template>
   <div class="current_chat">
-    <div v-if="loading" style="paddingTop:50px; text-align: center;">
-      <a-spin></a-spin>
-    </div>
+      <div v-if="loading" style=" position: absolute;top: 50%;left: 50%;z-index: 11;">
+            <a-spin></a-spin>
+          </div>
     <div v-if="currentChatList.length && !loading" style="height:100%">
       <a-row style="height:100%">
         <a-col :span="5" class="chat_left">
@@ -26,6 +26,7 @@
           </div>
         </a-col>
         <a-col :span="centerNum" style="height:100%">
+        
           <div class="chat_content">
             <a-page-header
               style="background:#f5f5f5;border-bottom: .5px solid #efefef"
@@ -97,7 +98,6 @@
                       </a-collapse-panel>
                     </a-collapse>
                   </div>
-                  
                 </a-tab-pane>
               </a-tabs>
             </div>
@@ -132,6 +132,7 @@
 
 
 <script>
+import dayjs from "dayjs";
 import ListItem from "@/components/chatBox/listItem";
 import ChatBox from "@/components/chatBox/chatBox";
 import CurrentOperation from "./component/currentOperation";
@@ -200,6 +201,9 @@ export default {
     currentChatList() {
       return this.$store.state.Socket.currentChatList;
     },
+    serviceMsg() {
+      return this.$store.state.Socket.serviceMsg;
+    },
      userInfo(){
       return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
     }
@@ -223,10 +227,27 @@ export default {
           }
           data.type === 0 &&
             (data.message = conversionFace(data.content || data.message));
+          // data.create_time = this.$dayjs().format('YYYY-MM-DD dddd HH:mm:ss')
           this.currentChatLogList.push(data);
         }
       },
       deep: true,
+    },
+    serviceMsg:{
+      handler(newVal){
+        let my_send = JSON.parse(JSON.stringify( newVal))
+        if(newVal.from_name == this.userInfo.kefu_name){
+          newVal.type === 3 && (my_send.message.play = false);
+          newVal.type === 0 && (my_send.message = conversionFace(newVal.message));
+          if( newVal.type === 2) {
+                my_send.progress = false
+                my_send.progress_num = 0
+              }
+          my_send.create_time = newVal.createtime
+          this.currentChatLogList.push(my_send);
+        }
+      },
+      deep:true
     },
     //转接接受或拒绝
     refuseMessage: {
@@ -371,8 +392,6 @@ export default {
               this.currentChatLogList = array
               this.isMore = false
            }
-           console.log(this.page)
-           console.log(this.currentChatLogList )
         this.SET_CURRENT_CHAT_LIST(this.arrayExists(
           this.currentChatList,
               params.username,
@@ -450,13 +469,14 @@ export default {
         type: type,
       };
       let sendMessage = JSON.parse(JSON.stringify(my_send));
-      type === 3 && (my_send.message.play = false);
-      type === 0 && (sendMessage.message = conversion(my_send.message));
-      if(type === 2) {
-            my_send.progress = false
-            my_send.progress_num = 0
-          }
-      this.currentChatLogList.push(my_send);
+      // type === 3 && (my_send.message.play = false);
+      // type === 0 && (sendMessage.message = conversion(my_send.message));
+      // if(type === 2) {
+      //       my_send.progress = false
+      //       my_send.progress_num = 0
+      //     }
+      // my_send.create_time = dayjs().format('YYYY-MM-DD HH:mm:ss')
+      // this.currentChatLogList.push(my_send);
       this.$socket.emit("message", sendMessage);
     },
     uploadImage(file, type) {

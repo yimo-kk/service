@@ -33,6 +33,8 @@ const state = {
     kickGroup:{},
     kefuStatus:{},
     oldUser:{},//上次接待的人
+    serviceMsg:{}, //客服自己发送的消息
+
 }
 const getters = {
     currentNum(state){
@@ -79,6 +81,10 @@ const mutations = {
     SOCKET_userMsg: (state, data) => {
         state.userMessage = data
     },
+    // 
+    SOCKET_serviceMsg:(state,data)=>{
+        state.serviceMsg = data
+    },
     SOCKET_relink: (state, data) => { 
         state.relinkMessage = data
     },
@@ -115,7 +121,7 @@ const mutations = {
            return item
         })
         if(state.activityGroup.activityId === data.group_id){
-            state.activityGroup.activityTitle= data.activityTitle
+            state.activityGroup.activityTitle= data.group_name
             state.activityGroup.is_invite=data. is_invite
             state.activityGroup.on_file= data. on_file
             state.activityGroup.on_voice= data. on_voice

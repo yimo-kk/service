@@ -1,8 +1,8 @@
 <template>
   <div class="chat">
-    <!-- <div class="loading" v-show="loading">
+    <div class="loading" v-show="loading">
       <a-spin></a-spin>
-    </div> -->
+    </div>
     <div class="chat_body">
       <div class="chat_all" ref="chatMain">
         <div class="more_chat_log ">
@@ -11,6 +11,9 @@
         </div>
         <p v-if='(count>50 &&chatLogListData.length >= count) && !isMore ' class="more_log">{{$t('noMore')}}</p>
         <div v-for="(item, index) in chatLogListData" :key="index">
+          <div class="flex_center" style="color:#ccc; fontSize:12px">
+            <p>{{ isViewDate(index) ?item.create_time:''}}</p>
+          </div>
           <div v-if="item.forbid" class="forbid">{{item.message}}</div>
           <div v-else>
             <div
@@ -364,6 +367,19 @@ export default {
   computed: {
      userInfo(){
       return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
+    },
+     isViewDate() {
+      return index => {
+        if (this.chatLogListData[index] && this.chatLogListData[index - 1]) {
+          return (
+            new Date(this.chatLogListData[index].create_time).getTime() -
+              new Date(this.chatLogListData[index - 1].create_time).getTime() >
+            1000 * 60 * 5
+          );
+        } else {
+          return "";
+        }
+      };
     }
   },
   watch: {
@@ -692,16 +708,18 @@ export default {
       this.$emit("removeblack",params);
     },
     downloadFileE(content,name,index,bool){
+      
       if(bool){return}
       this.isDownload = true
       dialog.showOpenDialog({
         //默认路径
         // defaultPath :"/download",
         //选择操作，此处是打开文件夹
-       properties: ['openFile', 'openDirectory'],
+       properties: [ 'openFile','openDirectory'],
         //过滤条件
         filters: [ { name: 'All', extensions: ['*'] }]
     },(res)=>{
+      if(!res)return
         let downloadFolder = res[0]
         let url
         if (typeof content !== "string") { 
@@ -712,19 +730,20 @@ export default {
          this.$electron.ipcRenderer.send('download', {
            downloadFolder,
            url,
-           index
+           index,
+           name
          });
     })
     },
     // 下载进度条
-    progress(){
-      this.$electron.ipcRenderer.on("progress",(e,obj)=>{
-        let arr = JSON.parse(JSON.stringify(this.chatLogListData))
-        if(arr.length){
-          arr[obj.index].progress &&  (this.chatLogListData[obj.index].progress =true)
-          arr[obj.index].progress_num = obj.progress_num*100
-        }
-      })
+    downloadProcess(){
+      // this.$electron.ipcRenderer.on("progress",(e,obj)=>{
+      //   let arr = JSON.parse(JSON.stringify(this.chatLogListData))
+      //   if(arr.length){
+      //     arr[obj.index].progress &&  (this.chatLogListData[obj.index].progress =true)
+      //     arr[obj.index].progress_num = obj.progress_num*100
+      //   }
+      // })
       this.$electron.ipcRenderer.on("downloadSuccess",(e,val)=>{
         this.isDownload = false
          if(val === 'success'){
@@ -741,16 +760,17 @@ export default {
     }
   },
   mounted() {
-              this.messageDown(); // 将聊天框滚轮拉到最底部
+    // 将聊天框滚轮拉到最底部
+    this.messageDown(); 
+    // 下面这句代码是获取 点击的区域是否包含你的菜单，如果包含，说明点击的是菜单以外，不包含则为菜单以内
     document.addEventListener("click",  (e)=> {
-      // 下面这句代码是获取 点击的区域是否包含你的菜单，如果包含，说明点击的是菜单以外，不包含则为菜单以内
       let flag = e.target.contains(
         document.getElementsByClassName("click_head_portrait")[0]
       );
       if (flag) return;
       this.isHeadPortrait = false;
     });
-        // 滚动到顶部 加载更多
+    // 滚动到顶部 加载更多
     let chatDoc = this.$refs.chatMain
     chatDoc.addEventListener('scroll',(e)=>{
         if( (e.target.scrollTop === 0 && 
@@ -760,7 +780,7 @@ export default {
         this.$emit('getLog',e)
       }
     })
-    this.progress()
+    this.downloadProcess()
   },
 };
 </script>

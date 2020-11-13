@@ -104,10 +104,11 @@ function createWindow() {
   });
   
   let folderPath=''
+  let foldername=''
   let downloadIndex = null
-  ipcMain.on('download', (evt, {url,downloadFolder,index}) =>{
-    console.log(url,downloadFolder,index,33333)
+  ipcMain.on('download', (evt, {url,downloadFolder,index,name}) =>{
     downloadIndex = index
+    foldername=name
     folderPath = downloadFolder;
     mainWindow.webContents.downloadURL(url);
 })
@@ -120,8 +121,8 @@ function createWindow() {
   // updateHandle()
   // 下载文件
   mainWindow.webContents.session.on('will-download', (event, item, webContents) => {
-    let path = folderPath+`\\${item.getFilename()}`
-    console.log(path)
+    let path = folderPath+`\\${foldername}`
+    // console.log(path)
     //设置文件存放位置
     item.setSavePath(path); 
   //   item.on('updated', (event, state) => {
