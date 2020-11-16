@@ -962,7 +962,7 @@ export default {
 .browBox {
   width: 400px;
   height: 200px;
-  background: #f2f3f4;
+  background: #fff;
   position: absolute;
   top: -220px;
   left: -90px;

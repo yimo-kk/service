@@ -31,9 +31,7 @@
       return new Promise(async (resolve, reject) => {
         await getUserInfo(accessToken,refreshToken)
           .then(result => {
-            //  commit('SET_USER_INFO',result.data)
-            //  this.ip = returnCitySN["cip"]; // ip
-            // commit('SET_USER_IP',{ip:result.data.kefu_ip})
+            commit('SET_USER_IP',{ip:result.data.login_ip})
             resolve(result);
           })
           .catch(err => {

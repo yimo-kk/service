@@ -34,6 +34,8 @@ const state = {
     kefuStatus:{},
     oldUser:{},//上次接待的人
     serviceMsg:{}, //客服自己发送的消息
+    userJoin:{}, // 有人加入群聊
+    userLeave:{}, // 有人离开
 
 }
 const getters = {
@@ -156,7 +158,7 @@ const mutations = {
         state.groupForbid = data
     },
      // 禁言全局个人提示
-     SOCKET_userForbid: (state, data) => {
+    SOCKET_userForbid: (state, data) => {
         state.userForbid = data
     },
     // 提示个人解禁
@@ -186,6 +188,15 @@ const mutations = {
         }
         
     },
+    // 有人加入群聊
+    SOCKET_userJoin:(state, data)=>{
+        state.userJoin = data
+    },
+    // 有人离开
+    SOCKET_userLeave:(state, data)=>{
+        state.userLeave = data
+    },
+    
     // 当前登录状态
     SOCKET_setStatus:(state, data) => { 
         state.kefuStatus = data

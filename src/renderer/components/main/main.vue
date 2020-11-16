@@ -228,7 +228,7 @@ export default {
           this.$electron.ipcRenderer.send(
             "isVisible_box",
             {
-              msg: `${data.from_name}给你发了新消息了`,
+              msg: `${data.from_name}给你发送了一条新消息了`,
               tab:'CurrentChat'
 
             }

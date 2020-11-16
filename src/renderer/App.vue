@@ -69,6 +69,7 @@ export default {
                 this.$electron.ipcRenderer.send('app-exit')
             }
         });
+       
         // 手动触发更新
         // ipcRenderer.send('checkForUpdate')
         //   let _this = this;

@@ -2,7 +2,7 @@ import request from '@/utils/axios.js'
 /**
  * 群列表
  */
-export function getGroupList(params){
+export function getGroupList(params){ 
     return request.post('/service/getGroupList',params)
 }
 /**

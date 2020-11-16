@@ -306,6 +306,12 @@ export default {
     kickGroup() {
       return this.$store.state.Socket.kickGroup;
     },
+    userJoin() {
+      return this.$store.state.Socket.userJoin;
+    },
+    userLeave() {
+      return this.$store.state.Socket.userLeave;
+    },
     userInfo(){
       return JSON.parse(localStorage.getItem(this.$route.query.seller_code))[this.$route.query.kefu_code]
     }
@@ -404,7 +410,28 @@ export default {
           this.centerNum = 19;
       },
       deep:true
+    },
+    userJoin:{
+      handler(newVal){
+      this.getGroupMemberList({
+          group_id: this.activityGroup.activityId,
+          seller_code: this.userInfo.seller_code,
+        });
+
+      },
+      deep:true
+    },
+    userLeave:{
+      handler(newVal){
+        this.getGroupMemberList({
+          group_id: this.activityGroup.activityId,
+          seller_code: this.userInfo.seller_code,
+        });
+
+      },
+      deep:true
     }
+
   },
   methods: {
     ...mapMutations(["SET_CHAT_LIST", "SET_ACTIVITY_GROUP"]),

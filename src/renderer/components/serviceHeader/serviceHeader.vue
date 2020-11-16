@@ -90,7 +90,7 @@ export default {
     },
     refresh(){
       // this.reload()
-      location. reload()
+      location.reload()
     },
     setStatus(index){
       if(this.kefuStatus== index) return
@@ -125,6 +125,13 @@ export default {
         }
       }
   },
+  mounted(){
+     window.document.addEventListener('keyup',(e)=>{
+            if(e.code === 'F5'){
+              this.refresh()
+            }
+        })
+  }
 };
 </script>
 
